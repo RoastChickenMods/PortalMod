@@ -1,0 +1,12 @@
+{
+    "parent": "minecraft:recipes/root",
+    "rewards": {
+        "recipes": [
+            "portalmod:portal"
+        ]
+    },
+    "criteria": {},
+    "requirements": [
+        []
+    ]
+}
