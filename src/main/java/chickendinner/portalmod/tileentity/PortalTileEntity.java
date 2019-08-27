@@ -9,7 +9,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import javax.vecmath.Matrix3f;
 import javax.vecmath.Matrix4f;
 import java.util.*;
 

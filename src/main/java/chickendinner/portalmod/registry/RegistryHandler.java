@@ -1,10 +1,8 @@
 package chickendinner.portalmod.registry;
 
 import chickendinner.portalmod.PortalMod;
-import chickendinner.portalmod.block.DotBlock;
 import chickendinner.portalmod.block.PortalBlock;
 import chickendinner.portalmod.item.PortalLinkerItem;
-import chickendinner.portalmod.tileentity.DotTileEntity;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -36,9 +34,8 @@ public final class RegistryHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void registerAll(final RegistryEvent.Register<Block> event) {
-        RegistryHandler.addBlock(Names.PORTAL, new PortalBlock(Block.Properties.from(Blocks.NETHER_PORTAL)), PortalTileEntity::new);
+        RegistryHandler.addBlock(Names.PORTAL, new PortalBlock(Block.Properties.from(Blocks.OBSIDIAN)), PortalTileEntity::new);
         addItem(Names.PORTAL_LINKER, new PortalLinkerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
-//        RegistryHandler.addBlock(Names.DOT_BLOCK, new DotBlock(Block.Properties.from(Blocks.COBBLESTONE)), DotTileEntity::new);
     }
 
     @SubscribeEvent

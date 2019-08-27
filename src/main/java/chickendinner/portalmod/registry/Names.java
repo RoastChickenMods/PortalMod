@@ -5,4 +5,5 @@ public class Names {
     public static final String DOT_BLOCK = "dot_block";
 
     public static final String PORTAL_LINKER = "portal_linker";
+    public static final String PORTAL_LINKER_ACTIVE = "active";
 }
