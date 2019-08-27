@@ -1,0 +1,20 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "portalmod:block/dot_block",
+            "y": 0
+        },
+        "facing=east": {
+            "model": "portalmod:block/dot_block",
+            "y": 90
+        },
+        "facing=west": {
+            "model": "portalmod:block/dot_block",
+            "y": 270
+        },
+        "facing=south": {
+            "model": "portalmod:block/dot_block",
+            "y": 180
+        }
+    }
+}
