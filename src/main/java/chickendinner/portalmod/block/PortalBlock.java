@@ -129,10 +129,6 @@ public class PortalBlock extends Block {
 
     @Override
     public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
-        if (hit.getFace() == state.get(FACING)) {
-            // TODO: 27/08/2019 pass thru
-            return false;
-        }
         TileEntity tile = world.getTileEntity(pos);
         ItemStack heldItem = player.getHeldItem(hand);
 
