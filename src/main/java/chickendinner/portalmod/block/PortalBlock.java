@@ -5,6 +5,7 @@ import chickendinner.portalmod.tileentity.PortalTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -19,6 +20,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -60,6 +62,24 @@ public class PortalBlock extends Block {
                 return EAST;
         }
         return VoxelShapes.empty();
+    }
+
+    @Override
+    public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entityIn) {
+        TileEntity tileEntity = world.getTileEntity(pos);
+        if (tileEntity instanceof PortalTileEntity) {
+            PortalTileEntity portal = (PortalTileEntity) tileEntity;
+            BlockPos destPos = portal.getDestPos();
+            BlockState destState = world.getBlockState(destPos);
+            Direction newDir = destState.get(FACING);
+            float rY = newDir.getHorizontalAngle() - entityIn.getYaw(0);
+            Vec3d offset = new Vec3d(destPos);
+            Vec3d old = entityIn.getPositionVec();
+            Vec3d oldOffset = old.subtract(pos.getX(), pos.getY(), pos.getZ());
+            oldOffset.rotateYaw(rY).scale(-1);
+            entityIn.setPositionAndRotation(offset.getX() + oldOffset.x % 1, offset.getY() + oldOffset.y % 1, offset.getZ() + oldOffset.z % 1, entityIn.getYaw(0) + rY, entityIn.getPitch(0));
+        }
+        super.onEntityCollision(state, world, pos, entityIn);
     }
 
     @Override

@@ -2,6 +2,7 @@ package chickendinner.portalmod.registry;
 
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
+import chickendinner.portalmod.item.PortalLinkBreakerItem;
 import chickendinner.portalmod.item.PortalLinkerItem;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import net.minecraft.block.Block;
@@ -36,6 +37,7 @@ public final class RegistryHandler {
     public static void registerAll(final RegistryEvent.Register<Block> event) {
         RegistryHandler.addBlock(Names.PORTAL, new PortalBlock(Block.Properties.from(Blocks.OBSIDIAN)), PortalTileEntity::new);
         addItem(Names.PORTAL_LINKER, new PortalLinkerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
+        addItem(Names.PORTAL_LINK_BREAKER, new PortalLinkBreakerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
     }
 
     @SubscribeEvent
