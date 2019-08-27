@@ -1,7 +1,20 @@
 {
-    "variants": {
-        "": {
-            "model": "portalmod:block/portal"
-        }
+  "variants": {
+    "facing=north": {
+      "model": "portalmod:block/portal",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "portalmod:block/portal",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "portalmod:block/portal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "portalmod:block/portal",
+      "y": 270
     }
+  }
 }

@@ -1,95 +1,130 @@
 package chickendinner.portalmod.item;
 
+import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
 import chickendinner.portalmod.registry.Names;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
+import chickendinner.portalmod.util.VectorUtils;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
-public class PortalLinkerItem extends Item {
+import javax.annotation.Nullable;
 
-    public static final String NBT_TAG = Names.PORTAL_LINKER;
+import static chickendinner.portalmod.registry.Names.PORTAL_LINKER;
+
+public class PortalLinkerItem extends Item {
 
     public PortalLinkerItem(Properties properties) {
         super(properties);
+        this.addPropertyOverride(new ResourceLocation(PortalMod.ID, Names.PORTAL_LINKER_ACTIVE), new IItemPropertyGetter() {
+            @Override
+            public float call(ItemStack stack, @Nullable World world, @Nullable LivingEntity entity) {
+                return hasLink(stack) ? 1F : 0F;
+            }
+        });
     }
 
     @Override
     public ActionResultType onItemUse(ItemUseContext context) {
         World world = context.getWorld();
 
-        BlockPos dstPos = context.getPos();
-        Block dstBlock = world.getBlockState(dstPos).getBlock();
-        TileEntity dstTile = world.getTileEntity(dstPos);
+        BlockPos pos = context.getPos();
+        Block block = world.getBlockState(pos).getBlock();
+        TileEntity tile = world.getTileEntity(pos);
         PlayerEntity player = context.getPlayer();
 
-        if (player == null || !(dstBlock instanceof PortalBlock) || !(dstTile instanceof PortalTileEntity)) {
-            return ActionResultType.FAIL;
+        if (player == null || !(block instanceof PortalBlock) || !(tile instanceof PortalTileEntity)) {
+            return ActionResultType.FAIL; // Because we do nothing
         }
 
-        ItemStack itemStack = player.getHeldItem(context.getHand());
-        CompoundNBT nbt = itemStack.getOrCreateChildTag(NBT_TAG);
+        ItemStack heldItem = player.getHeldItem(context.getHand());
 
-        if (nbt.contains("pos")) {
-            BlockPos srcPos = NBTUtil.readBlockPos(nbt.getCompound("pos"));
-            TileEntity srcTile = world.getTileEntity(srcPos);
-
-            if (!(srcTile instanceof PortalTileEntity)) {
-                player.sendStatusMessage(new StringTextComponent("Source portal was not found"), true);
-                clearNBT(itemStack);
-                return ActionResultType.FAIL;
+        BlockPos linked = getLink(heldItem);
+        if (linked == null) {
+            if (hasLink(heldItem)) {
+                removeLink(heldItem);
+                tellPlayer(player, "Something broke, clearing stored position.");
+                return ActionResultType.SUCCESS; // Because we did something (remove the link)
             }
-
-            if (!((PortalTileEntity) dstTile).linkPortal((PortalTileEntity) srcTile)) {
-                player.sendStatusMessage(new StringTextComponent("Could not link portal"), true);
-            } else {
-                player.sendStatusMessage(new StringTextComponent("Portal linked"), true);
-            }
-            clearNBT(player.getHeldItem(context.getHand()));
-        } else {
-            player.sendStatusMessage(new StringTextComponent(String.format("Stored portal at %s", dstPos.toString())), true);
-            nbt.put("pos", NBTUtil.writeBlockPos(dstPos));
+            setLink(heldItem, pos);
+            tellPlayer(player, String.format("Set the stored position to %s", VectorUtils.convertToCoordinate(pos)));
+            return ActionResultType.SUCCESS; // Because we did something (set the link)
         }
 
-        return ActionResultType.SUCCESS;
+        TileEntity linkedTile = world.getTileEntity(linked);
+        if (!(linkedTile instanceof PortalTileEntity)) {
+            tellPlayer(player, "Portal at stored position no longer exists");
+            removeLink(heldItem);
+            return ActionResultType.SUCCESS; // Because we did something (remove the link)
+        }
+        if (((PortalTileEntity) linkedTile).linkPortal(((PortalTileEntity) tile))) {
+            tellPlayer(player, "Portals are now successfully linked");
+            removeLink(heldItem);
+            return ActionResultType.SUCCESS; // Because we did something (linked the portals and remove the link)
+        }
+        tellPlayer(player, "Portals failed to link.");
+        removeLink(heldItem);
+        return ActionResultType.SUCCESS; // Because we did something (remove the link)
     }
+
 
     @Override
     public ITextComponent getDisplayName(ItemStack stack) {
-        CompoundNBT tag = stack.getOrCreateChildTag(NBT_TAG);
-        if (tag.contains("pos")) {
-            BlockPos blockPos = NBTUtil.readBlockPos(tag);
-            return new StringTextComponent(String.format("%s (%d,%d,%d)", super.getDisplayName(stack).getString(), blockPos.getX(), blockPos.getY(), blockPos.getZ()));
+        ITextComponent normal = super.getDisplayName(stack);
+        if (hasLink(stack)) {
+            return new StringTextComponent(String.format("%s %s", normal.getString(), VectorUtils.convertToCoordinate(getLink(stack))));
         }
-        return super.getDisplayName(stack);
+        return normal;
     }
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand) {
         if (player.isSneaking()) {
-            clearNBT(player.getHeldItem(hand));
-
-            player.sendStatusMessage(new StringTextComponent(String.format("Portal link status reset")), true);
+            removeLink(player.getHeldItem(hand));
+            tellPlayer(player, "Stored position has been cleared.");
         }
-
         return super.onItemRightClick(world, player, hand);
     }
 
-    private void clearNBT(ItemStack itemStack) {
-        itemStack.removeChildTag(NBT_TAG);
+    private static boolean hasLink(ItemStack stack) {
+        return stack.getOrCreateChildTag(PORTAL_LINKER).contains("pos");
+    }
+
+    private static BlockPos getLink(ItemStack stack) {
+        if (!hasLink(stack)) {
+            return null;
+        }
+        return NBTUtil.readBlockPos(stack.getOrCreateChildTag(PORTAL_LINKER).getCompound("pos"));
+    }
+
+    private static void setLink(ItemStack stack, BlockPos pos) {
+        stack.getOrCreateChildTag(PORTAL_LINKER).put("pos", NBTUtil.writeBlockPos(pos));
+    }
+
+    private static void removeLink(ItemStack stack) {
+        stack.getOrCreateChildTag(PORTAL_LINKER).remove("pos");
+    }
+
+    private static void tellPlayer(PlayerEntity player, String message) {
+        tellPlayer(player, message, true);
+    }
+
+    private static void tellPlayer(PlayerEntity player, String message, boolean actionbar) {
+        player.sendStatusMessage(new StringTextComponent(message), actionbar);
     }
 }
