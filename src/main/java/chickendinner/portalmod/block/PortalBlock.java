@@ -3,8 +3,11 @@ package chickendinner.portalmod.block;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
@@ -12,7 +15,9 @@ import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
@@ -41,6 +46,33 @@ public class PortalBlock extends Block {
 //        if (tile instanceof PortalTileEntity) {
 //            ((PortalTileEntity) tile).updateSurroundingPortals();
 //        }
+    }
+
+    @Override
+    public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+        TileEntity tile = world.getTileEntity(pos);
+        ItemStack heldItem = player.getHeldItem(hand);
+
+        if (!heldItem.isEmpty() && heldItem.getItem() instanceof BlockItem && ((BlockItem) heldItem.getItem()).getBlock().getDefaultState().equals(Blocks.STONE.getDefaultState())) {
+            if (tile instanceof PortalTileEntity) {
+                PortalTileEntity portalTile = (PortalTileEntity) tile;
+
+                BlockPos destPos = portalTile.getDestPos();
+
+                if (destPos != null) {
+                    world.setBlockState(destPos, Blocks.STONE.getDefaultState());
+                    return true;
+                }
+
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+        super.onReplaced(state, worldIn, pos, newState, isMoving);
     }
 
     @Nullable
