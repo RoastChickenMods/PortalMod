@@ -3,7 +3,8 @@ package chickendinner.portalmod.tileentity;
 import chickendinner.portalmod.block.PortalBlock;
 import chickendinner.portalmod.registry.ModTileTypes;
 import chickendinner.portalmod.util.PortalLinkResult;
-import net.minecraft.block.Blocks;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -19,6 +20,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
     private PortalSurface surface;
     private int surfaceCoordU;
     private int surfaceCoordV;
+    private boolean relinkFlag = false;
 
     public PortalTileEntity() {
         super(ModTileTypes.PORTAL);
@@ -26,13 +28,54 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
 
     @Override
     public void tick() {
+        World world = this.getWorld();
 
+        if (world != null) {
+            if (relinkFlag) {
+                relinkFlag = false;
+
+                if (!this.isLinked() && this.destPos != null) {
+                    TileEntity tile = world.getTileEntity(this.destPos);
+
+                    if (tile instanceof PortalTileEntity) {
+                        PortalLinkResult portalLinkResult = this.linkPortal(((PortalTileEntity) tile));
+                        if (portalLinkResult != PortalLinkResult.SUCCESS) {
+                            System.err.println("Failed to load portal link: " + portalLinkResult.toString());
+                        }
+                    } else {
+                        System.err.println(String.format("Failed to load portal link from [%d,%d,%d] to [%d,%d,%d]. Destination position is not a portal tile",
+                                this.getPos().getX(), this.getPos().getY(), this.getPos().getZ(),
+                                this.destPos.getX(), this.destPos.getY(), this.destPos.getZ())
+                        );
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public void remove() {
         this.unlinkPortal();
         super.remove();
+    }
+
+    @Override
+    public void read(CompoundNBT compound) {
+        if (compound.contains("destPos")) {
+            this.destPos = NBTUtil.readBlockPos(compound.getCompound("destPos"));
+            this.relinkFlag = true;
+        }
+
+        super.read(compound);
+    }
+
+    @Override
+    public CompoundNBT write(CompoundNBT compound) {
+        if (destPos != null) {
+            compound.put("destPos", NBTUtil.writeBlockPos(this.destPos));
+        }
+
+        return super.write(compound);
     }
 
     public void unlinkPortal() {
@@ -51,6 +94,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
                         portalTile.destPos = null;
                         portalTile.surfaceCoordU = 0;
                         portalTile.surfaceCoordV = 0;
+                        portalTile.markDirty();
                     }
                 }
 
@@ -65,6 +109,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
                             portalTile.destPos = null;
                             portalTile.surfaceCoordU = 0;
                             portalTile.surfaceCoordV = 0;
+                            portalTile.markDirty();
                         }
                     }
                 }
@@ -138,6 +183,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
                 portalTile.surfaceCoordV = surface0.vAxis.getAxisDirection().getOffset() * surface0.vAxis.getAxis().getCoordinate(d.getX(), d.getY(), d.getZ());
                 portalTile.destPos = surface1.origin.offset(surface1.uAxis, portalTile.surfaceCoordU).offset(surface1.vAxis, portalTile.surfaceCoordV);
                 portalTile.surface = surface0;
+                portalTile.markDirty();
             }
         }
 
@@ -151,6 +197,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
                 portalTile.surfaceCoordV = surface1.vAxis.getAxisDirection().getOffset() * surface1.vAxis.getAxis().getCoordinate(d.getX(), d.getY(), d.getZ());
                 portalTile.destPos = surface0.origin.offset(surface0.uAxis, portalTile.surfaceCoordU).offset(surface0.vAxis, portalTile.surfaceCoordV);
                 portalTile.surface = surface1;
+                portalTile.markDirty();
             }
         }
 
@@ -262,7 +309,8 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         return surface;
     }
 
-    private void walkSearch(Direction[] searchPlane, Direction direction, Set<BlockPos> visited, Set<BlockPos> surface, int[] bounds) {
+    private void walkSearch(Direction[] searchPlane, Direction
+            direction, Set<BlockPos> visited, Set<BlockPos> surface, int[] bounds) {
         BlockPos pos = this.getPos();
         World world = this.getWorld();
 
