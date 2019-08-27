@@ -35,12 +35,12 @@ import java.util.Objects;
 public class PortalBlock extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    private static final VoxelShape TOP = Block.makeCuboidShape(0, 16, 0, 16, 15.99999, 16);
-    private static final VoxelShape BOTTOM = Block.makeCuboidShape(0, 0, 0, 16, 0.00001, 16);
-    private static final VoxelShape NORTH = Block.makeCuboidShape(0, 0, 0, 16, 16, 0.00001);
-    private static final VoxelShape EAST = Block.makeCuboidShape(16, 0, 0, 15.99999, 16, 16);
-    private static final VoxelShape SOUTH = Block.makeCuboidShape(0, 0, 16, 16, 16, 15.99999);
-    private static final VoxelShape WEST = Block.makeCuboidShape(0, 0, 0, 0.00001, 16, 16);
+    private static final VoxelShape TOP = Block.makeCuboidShape(0, 16, 0, 16, 15.999, 16);
+    private static final VoxelShape BOTTOM = Block.makeCuboidShape(0, 0, 0, 16, 0.001, 16);
+    private static final VoxelShape NORTH = Block.makeCuboidShape(0, 0, 0, 16, 16, 0.001);
+    private static final VoxelShape EAST = Block.makeCuboidShape(16, 0, 0, 15.999, 16, 16);
+    private static final VoxelShape SOUTH = Block.makeCuboidShape(0, 0, 16, 16, 16, 15.999);
+    private static final VoxelShape WEST = Block.makeCuboidShape(0, 0, 0, 0.001, 16, 16);
 
     public PortalBlock(Properties properties) {
         super(properties);
@@ -70,6 +70,7 @@ public class PortalBlock extends Block {
         if (tileEntity instanceof PortalTileEntity) {
             PortalTileEntity portal = (PortalTileEntity) tileEntity;
             BlockPos destPos = portal.getDestPos();
+            if (destPos == null) return;
             BlockState destState = world.getBlockState(destPos);
             Direction newDir = destState.get(FACING);
             float rY = newDir.getHorizontalAngle() - entityIn.getYaw(0);
@@ -95,7 +96,15 @@ public class PortalBlock extends Block {
             }
             shape = VoxelShapes.or(shape, getShapeFromDir(value));
         }
+        if (context != null && context.getEntity() != null) {
+            shape = VoxelShapes.or(getShape(state, world, pos, null), getShapeFromDir(state.get(FACING)));
+        }
         return shape;
+    }
+
+    @Override
+    public VoxelShape getRaytraceShape(BlockState state, IBlockReader world, BlockPos pos) {
+        return VoxelShapes.or(getShape(state, world, pos, null), getShapeFromDir(state.get(FACING)));
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -103,10 +112,10 @@ public class PortalBlock extends Block {
         return adjacentBlockState.getBlock() == ModBlocks.PORTAL;
     }
 
+    @Override
     public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT_MIPPED;
     }
-
 
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
@@ -120,6 +129,10 @@ public class PortalBlock extends Block {
 
     @Override
     public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+        if (hit.getFace() == state.get(FACING)) {
+            // TODO: 27/08/2019 pass thru
+            return false;
+        }
         TileEntity tile = world.getTileEntity(pos);
         ItemStack heldItem = player.getHeldItem(hand);
 
