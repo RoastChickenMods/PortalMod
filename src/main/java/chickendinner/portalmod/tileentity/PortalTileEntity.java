@@ -2,16 +2,15 @@ package chickendinner.portalmod.tileentity;
 
 import chickendinner.portalmod.block.PortalBlock;
 import chickendinner.portalmod.registry.ModTileTypes;
+import chickendinner.portalmod.util.PortalLinkResult;
 import net.minecraft.block.Blocks;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
-import javax.vecmath.Matrix4f;
 import java.util.*;
 
 public class PortalTileEntity extends TileEntity implements ITickableTileEntity {
@@ -39,49 +38,45 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
     public void unlinkPortal() {
         World world = this.getWorld();
 
-        if (world != null && this.surface != null) {
-            for (BlockPos position : this.surface.positions) {
-                TileEntity tile0 = world.getTileEntity(position);
+        if (world != null) {
 
-                if (tile0 instanceof PortalTileEntity) {
-                    PortalTileEntity portalTile0 = (PortalTileEntity) tile0;
+            PortalSurface surface0 = this.surface;
+            if (surface0 != null) {
+                for (BlockPos position : surface0.positions) {
+                    TileEntity tile = world.getTileEntity(position);
+                    if (tile instanceof PortalTileEntity) {
+                        PortalTileEntity portalTile = (PortalTileEntity) tile;
 
-                    if (portalTile0.destPos != null) {
-                        TileEntity tile1 = world.getTileEntity(portalTile0.destPos);
+                        portalTile.surface = null;
+                        portalTile.destPos = null;
+                        portalTile.surfaceCoordU = 0;
+                        portalTile.surfaceCoordV = 0;
+                    }
+                }
 
-                        if (tile1 instanceof PortalTileEntity) {
-                            PortalTileEntity portalTile1 = (PortalTileEntity) tile1;
+                PortalSurface surface1 = surface0.destSurface;
+                if (surface1 != null) {
+                    for (BlockPos position : surface1.positions) {
+                        TileEntity tile = world.getTileEntity(position);
+                        if (tile instanceof PortalTileEntity) {
+                            PortalTileEntity portalTile = (PortalTileEntity) tile;
 
-                            if (portalTile1.destPos != null) {
-                                world.setBlockState(portalTile1.destPos, Blocks.STONE.getDefaultState());
-                            }
-
-                            portalTile1.destPos = null;
-                            portalTile1.surface = null;
-                            portalTile1.surfaceCoordU = 0;
-                            portalTile1.surfaceCoordV = 0;
+                            portalTile.surface = null;
+                            portalTile.destPos = null;
+                            portalTile.surfaceCoordU = 0;
+                            portalTile.surfaceCoordV = 0;
                         }
                     }
-
-
-                    if (portalTile0.destPos != null) {
-                        world.setBlockState(portalTile0.destPos, Blocks.STONE.getDefaultState());
-                    }
-
-                    portalTile0.destPos = null;
-                    portalTile0.surface = null;
-                    portalTile0.surfaceCoordU = 0;
-                    portalTile0.surfaceCoordV = 0;
                 }
             }
         }
     }
 
-    public boolean linkPortal(PortalTileEntity portal) {
+    public PortalLinkResult linkPortal(PortalTileEntity portal) {
         World world = this.getWorld();
 
         if (world == null || portal == null) {
-            return false;
+            return PortalLinkResult.MISSING_DESTINATION_ERROR;
         }
 
         int[] surfaceCoord0 = new int[2];
@@ -94,7 +89,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         PortalSurface surface1 = portal.buildPortalSurface(surfaceCoord1);
 
         if (surface0 == null || surface1 == null) {
-            return false;
+            return PortalLinkResult.INVALID_STATE_ERROR;
         }
 
         if (surface0.direction.equals(surface1.direction.getOpposite()) || surface0.direction.equals(surface1.direction)) {
@@ -112,12 +107,12 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         }
 
         if (!Arrays.deepEquals(surface0.shape, surface1.shape)) {
-            return false;
+            return PortalLinkResult.SHAPE_MISMATCH_ERROR;
         }
 
         for (BlockPos p : surface0.positions) {
             if (surface1.positions.contains(p)) {
-                return false;
+                return PortalLinkResult.LINK_TO_SELF_ERROR;
             }
         }
 
@@ -142,6 +137,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
                 portalTile.surfaceCoordU = surface0.uAxis.getAxisDirection().getOffset() * surface0.uAxis.getAxis().getCoordinate(d.getX(), d.getY(), d.getZ());
                 portalTile.surfaceCoordV = surface0.vAxis.getAxisDirection().getOffset() * surface0.vAxis.getAxis().getCoordinate(d.getX(), d.getY(), d.getZ());
                 portalTile.destPos = surface1.origin.offset(surface1.uAxis, portalTile.surfaceCoordU).offset(surface1.vAxis, portalTile.surfaceCoordV);
+                portalTile.surface = surface0;
             }
         }
 
@@ -154,10 +150,14 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
                 portalTile.surfaceCoordU = surface1.uAxis.getAxisDirection().getOffset() * surface1.uAxis.getAxis().getCoordinate(d.getX(), d.getY(), d.getZ());
                 portalTile.surfaceCoordV = surface1.vAxis.getAxisDirection().getOffset() * surface1.vAxis.getAxis().getCoordinate(d.getX(), d.getY(), d.getZ());
                 portalTile.destPos = surface0.origin.offset(surface0.uAxis, portalTile.surfaceCoordU).offset(surface0.vAxis, portalTile.surfaceCoordV);
+                portalTile.surface = surface1;
             }
         }
 
-        return true;
+        surface0.destSurface = surface1;
+        surface1.destSurface = surface0;
+
+        return PortalLinkResult.SUCCESS;
     }
 
     private PortalSurface buildPortalSurface(int[] surfaceCoord) {
@@ -290,6 +290,10 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         }
     }
 
+    public boolean isLinked() {
+        return this.destPos != null && this.surface != null;
+    }
+
     public BlockPos getDestPos() {
         return destPos;
     }
@@ -321,5 +325,6 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         public Direction uAxis;
         public Direction vAxis;
         public BlockPos origin;
+        public PortalSurface destSurface;
     }
 }

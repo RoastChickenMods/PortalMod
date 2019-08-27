@@ -4,6 +4,7 @@ import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
 import chickendinner.portalmod.registry.Names;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
+import chickendinner.portalmod.util.PortalLinkResult;
 import chickendinner.portalmod.util.VectorUtils;
 import net.minecraft.block.Block;
 import net.minecraft.entity.LivingEntity;
@@ -21,6 +22,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -52,10 +54,15 @@ public class PortalLinkerItem extends Item {
             return ActionResultType.FAIL; // Because we do nothing
         }
 
+        if (((PortalTileEntity) tile).isLinked()) {
+            tellPlayer(player, PortalLinkResult.ALREADY_LINKED_ERROR.getUnlocalizedMessage());
+            return ActionResultType.FAIL;
+        }
+
         ItemStack heldItem = player.getHeldItem(context.getHand());
 
-        BlockPos linked = getLink(heldItem);
-        if (linked == null) {
+        BlockPos linkPosition = getLink(heldItem);
+        if (linkPosition == null) {
             if (hasLink(heldItem)) {
                 removeLink(heldItem);
                 tellPlayer(player, "Something broke, clearing stored position.");
@@ -66,18 +73,21 @@ public class PortalLinkerItem extends Item {
             return ActionResultType.SUCCESS; // Because we did something (set the link)
         }
 
-        TileEntity linkedTile = world.getTileEntity(linked);
-        if (!(linkedTile instanceof PortalTileEntity)) {
-            tellPlayer(player, "Portal at stored position no longer exists");
+        TileEntity portalTile = world.getTileEntity(linkPosition);
+        if (!(portalTile instanceof PortalTileEntity)) {
+            tellPlayer(player, PortalLinkResult.MISSING_DESTINATION_ERROR.getUnlocalizedMessage());
             removeLink(heldItem);
             return ActionResultType.SUCCESS; // Because we did something (remove the link)
         }
-        if (((PortalTileEntity) linkedTile).linkPortal(((PortalTileEntity) tile))) {
-            tellPlayer(player, "Portals are now successfully linked");
+
+        if (((PortalTileEntity) portalTile).isLinked()) {
+            tellPlayer(player, PortalLinkResult.ALREADY_LINKED_ERROR.getUnlocalizedMessage());
             removeLink(heldItem);
-            return ActionResultType.SUCCESS; // Because we did something (linked the portals and remove the link)
+            return ActionResultType.SUCCESS; // Because we did something (remove the link)
         }
-        tellPlayer(player, "Portals failed to link.");
+
+        PortalLinkResult portalLinkResult = ((PortalTileEntity) portalTile).linkPortal(((PortalTileEntity) tile));
+        tellPlayer(player, portalLinkResult.getUnlocalizedMessage());
         removeLink(heldItem);
         return ActionResultType.SUCCESS; // Because we did something (remove the link)
     }
@@ -125,6 +135,6 @@ public class PortalLinkerItem extends Item {
     }
 
     private static void tellPlayer(PlayerEntity player, String message, boolean actionbar) {
-        player.sendStatusMessage(new StringTextComponent(message), actionbar);
+        player.sendStatusMessage(new TranslationTextComponent(message), actionbar);
     }
 }
