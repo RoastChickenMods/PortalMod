@@ -4,12 +4,11 @@ import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
 import chickendinner.portalmod.registry.Names;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
+import chickendinner.portalmod.util.PlayerUtil;
 import chickendinner.portalmod.util.PortalLinkResult;
 import chickendinner.portalmod.util.VectorUtils;
 import net.minecraft.block.Block;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
@@ -22,10 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-
-import javax.annotation.Nullable;
 
 import static chickendinner.portalmod.registry.Names.PORTAL_LINKER;
 
@@ -33,12 +29,7 @@ public class PortalLinkerItem extends Item {
 
     public PortalLinkerItem(Properties properties) {
         super(properties);
-        this.addPropertyOverride(new ResourceLocation(PortalMod.ID, Names.PORTAL_LINKER_ACTIVE), new IItemPropertyGetter() {
-            @Override
-            public float call(ItemStack stack, @Nullable World world, @Nullable LivingEntity entity) {
-                return hasLink(stack) ? 1F : 0F;
-            }
-        });
+        this.addPropertyOverride(new ResourceLocation(PortalMod.ID, Names.PORTAL_LINKER_ACTIVE), (stack, world, entity) -> hasLink(stack) ? 1F : 0F);
     }
 
     @Override
@@ -55,7 +46,7 @@ public class PortalLinkerItem extends Item {
         }
 
         if (((PortalTileEntity) tile).isLinked()) {
-            tellPlayer(player, PortalLinkResult.ALREADY_LINKED_ERROR.getUnlocalizedMessage());
+            PlayerUtil.tellPlayer(player, PortalLinkResult.ALREADY_LINKED_ERROR.getUnlocalizedMessage());
             return ActionResultType.FAIL;
         }
 
@@ -65,29 +56,29 @@ public class PortalLinkerItem extends Item {
         if (linkPosition == null) {
             if (hasLink(heldItem)) {
                 removeLink(heldItem);
-                tellPlayer(player, "Something broke, clearing stored position.");
+                PlayerUtil.tellPlayer(player, "Something broke, clearing stored position.");
                 return ActionResultType.SUCCESS; // Because we did something (remove the link)
             }
             setLink(heldItem, pos);
-            tellPlayer(player, String.format("Set the stored position to %s", VectorUtils.convertToCoordinate(pos)));
+            PlayerUtil.tellPlayer(player, String.format("Set the stored position to %s", VectorUtils.convertToCoordinate(pos)));
             return ActionResultType.SUCCESS; // Because we did something (set the link)
         }
 
         TileEntity portalTile = world.getTileEntity(linkPosition);
         if (!(portalTile instanceof PortalTileEntity)) {
-            tellPlayer(player, PortalLinkResult.MISSING_DESTINATION_ERROR.getUnlocalizedMessage());
+            PlayerUtil.tellPlayer(player, PortalLinkResult.MISSING_DESTINATION_ERROR.getUnlocalizedMessage());
             removeLink(heldItem);
             return ActionResultType.SUCCESS; // Because we did something (remove the link)
         }
 
         if (((PortalTileEntity) portalTile).isLinked()) {
-            tellPlayer(player, PortalLinkResult.ALREADY_LINKED_ERROR.getUnlocalizedMessage());
+            PlayerUtil.tellPlayer(player, PortalLinkResult.ALREADY_LINKED_ERROR.getUnlocalizedMessage());
             removeLink(heldItem);
             return ActionResultType.SUCCESS; // Because we did something (remove the link)
         }
 
         PortalLinkResult portalLinkResult = ((PortalTileEntity) portalTile).linkPortal(((PortalTileEntity) tile));
-        tellPlayer(player, portalLinkResult.getUnlocalizedMessage());
+        PlayerUtil.tellPlayer(player, portalLinkResult.getUnlocalizedMessage());
         removeLink(heldItem);
         return ActionResultType.SUCCESS; // Because we did something (remove the link)
     }
@@ -106,7 +97,7 @@ public class PortalLinkerItem extends Item {
     public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand) {
         if (player.isSneaking()) {
             removeLink(player.getHeldItem(hand));
-            tellPlayer(player, "Stored position has been cleared.");
+            PlayerUtil.tellPlayer(player, "Stored position has been cleared.");
         }
         return super.onItemRightClick(world, player, hand);
     }
@@ -128,13 +119,5 @@ public class PortalLinkerItem extends Item {
 
     private static void removeLink(ItemStack stack) {
         stack.getOrCreateChildTag(PORTAL_LINKER).remove("pos");
-    }
-
-    private static void tellPlayer(PlayerEntity player, String message) {
-        tellPlayer(player, message, true);
-    }
-
-    private static void tellPlayer(PlayerEntity player, String message, boolean actionbar) {
-        player.sendStatusMessage(new TranslationTextComponent(message), actionbar);
     }
 }

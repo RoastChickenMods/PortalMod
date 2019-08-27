@@ -2,6 +2,8 @@ package chickendinner.portalmod.registry;
 
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
+import chickendinner.portalmod.group.PortalModGroup;
+import chickendinner.portalmod.item.PortalLinkBreakerItem;
 import chickendinner.portalmod.item.PortalLinkerItem;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import net.minecraft.block.Block;
@@ -24,7 +26,7 @@ import java.util.function.Supplier;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class RegistryHandler {
 
-    public static final Item.Properties DEFAULT_ITEM_PROPERTIES = new Item.Properties();
+    public static final Item.Properties DEFAULT_ITEM_PROPERTIES = new Item.Properties().group(PortalModGroup.INSTANCE);
     private static final Map<String, Block> intermediateBlockMap = new HashMap<>();
     private static final Map<String, Item> intermediateItemMap = new HashMap<>();
     private static final Map<Block, Supplier<TileEntity>> intermediateTileMap = new HashMap<>();
@@ -36,6 +38,7 @@ public final class RegistryHandler {
     public static void registerAll(final RegistryEvent.Register<Block> event) {
         RegistryHandler.addBlock(Names.PORTAL, new PortalBlock(Block.Properties.from(Blocks.OBSIDIAN)), PortalTileEntity::new);
         addItem(Names.PORTAL_LINKER, new PortalLinkerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
+        addItem(Names.PORTAL_LINK_BREAKER, new PortalLinkBreakerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
     }
 
     @SubscribeEvent
