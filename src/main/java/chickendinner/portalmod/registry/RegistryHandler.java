@@ -2,12 +2,14 @@ package chickendinner.portalmod.registry;
 
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
+import chickendinner.portalmod.block.SlitCannonBlock;
 import chickendinner.portalmod.block.SolidFuelGeneratorBlock;
 import chickendinner.portalmod.group.PortalModGroup;
 import chickendinner.portalmod.item.PortalLinkBreakerItem;
 import chickendinner.portalmod.item.PortalLinkerItem;
 import chickendinner.portalmod.reference.Names;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
+import chickendinner.portalmod.tileentity.SlitCannonTile;
 import chickendinner.portalmod.tileentity.SolidFuelGeneratorTile;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -41,6 +43,7 @@ public final class RegistryHandler {
     public static void registerAll(final RegistryEvent.Register<Block> event) {
         addBlock(Names.PORTAL, new PortalBlock(Block.Properties.from(Blocks.OBSIDIAN)), PortalTileEntity::new);
         addBlock(Names.SOLID_FUEL_GENERATOR, new SolidFuelGeneratorBlock(Block.Properties.from(Blocks.IRON_BLOCK)), SolidFuelGeneratorTile::new);
+        addBlock(Names.SLIT_CANNON, new SlitCannonBlock(Block.Properties.from(Blocks.IRON_BLOCK)), SlitCannonTile::new);
         addItem(Names.PORTAL_LINKER, new PortalLinkerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
         addItem(Names.PORTAL_LINK_BREAKER, new PortalLinkBreakerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
     }
