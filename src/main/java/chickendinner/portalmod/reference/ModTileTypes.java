@@ -1,6 +1,7 @@
 package chickendinner.portalmod.reference;
 
 import chickendinner.portalmod.PortalMod;
+import chickendinner.portalmod.tileentity.EntanglementCatcherTile;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import chickendinner.portalmod.tileentity.SlitCannonTile;
 import chickendinner.portalmod.tileentity.SolidFuelGeneratorTile;
@@ -12,4 +13,5 @@ public class ModTileTypes {
     public static final TileEntityType<PortalTileEntity> PORTAL = null;
     public static final TileEntityType<SolidFuelGeneratorTile> SOLID_FUEL_GENERATOR = null;
     public static final TileEntityType<SlitCannonTile> SLIT_CANNON = null;
+    public static final TileEntityType<EntanglementCatcherTile> ENTANGLEMENT_CATCHER = null;
 }

@@ -1,15 +1,13 @@
 package chickendinner.portalmod.registry;
 
 import chickendinner.portalmod.PortalMod;
-import chickendinner.portalmod.block.PortalBlock;
-import chickendinner.portalmod.block.SlitBlock;
-import chickendinner.portalmod.block.SlitCannonBlock;
-import chickendinner.portalmod.block.SolidFuelGeneratorBlock;
+import chickendinner.portalmod.block.*;
 import chickendinner.portalmod.group.PortalModGroup;
 import chickendinner.portalmod.item.PortalLinkBreakerItem;
 import chickendinner.portalmod.item.PortalLinkerItem;
 import chickendinner.portalmod.reference.Names;
 import chickendinner.portalmod.ter.PortalTileEntityRenderer;
+import chickendinner.portalmod.tileentity.EntanglementCatcherTile;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import chickendinner.portalmod.tileentity.SlitCannonTile;
 import chickendinner.portalmod.tileentity.SolidFuelGeneratorTile;
@@ -48,6 +46,7 @@ public final class RegistryHandler {
         addBlock(Names.SOLID_FUEL_GENERATOR, new SolidFuelGeneratorBlock(Block.Properties.from(Blocks.IRON_BLOCK)), SolidFuelGeneratorTile::new);
         addBlock(Names.SLIT_CANNON, new SlitCannonBlock(Block.Properties.from(Blocks.IRON_BLOCK)), SlitCannonTile::new);
         addBlock(Names.SLIT_BLOCK, new SlitBlock(Block.Properties.from(Blocks.IRON_BLOCK)));
+        addBlock(Names.ENTANGLEMENT_CATCHER, new EntanglementCatcherBlock(Block.Properties.from(Blocks.IRON_BLOCK)), EntanglementCatcherTile::new);
         addItem(Names.PORTAL_LINKER, new PortalLinkerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
         addItem(Names.PORTAL_LINK_BREAKER, new PortalLinkBreakerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
 
