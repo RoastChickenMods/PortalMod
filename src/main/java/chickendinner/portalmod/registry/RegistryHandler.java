@@ -26,6 +26,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -46,6 +47,7 @@ public final class RegistryHandler {
         addBlock(Names.SLIT_CANNON, new SlitCannonBlock(Block.Properties.from(Blocks.IRON_BLOCK)), SlitCannonTile::new);
         addBlock(Names.SLIT_BLOCK, new SlitBlock(Block.Properties.from(Blocks.IRON_BLOCK)));
         addBlock(Names.ENTANGLEMENT_CATCHER, new EntanglementCatcherBlock(Block.Properties.from(Blocks.IRON_BLOCK)), EntanglementCatcherTile::new);
+        addBlock(Names.MACHINE_BASE, new Block(Block.Properties.from(Blocks.IRON_BLOCK)), b -> new BlockNamedItem(b, DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
         addItem(Names.PORTAL_LINKER, new PortalLinkerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
         addItem(Names.PORTAL_LINK_BREAKER, new PortalLinkBreakerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
         addItem(Names.ENTANGLED_PAIR, new EntangledPairItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(2)));
@@ -70,20 +72,20 @@ public final class RegistryHandler {
     }
 
     private static void addBlock(String name, Block block, Supplier<TileEntity> tileSupplier) {
-        addBlock(name, block, new BlockNamedItem(block, DEFAULT_ITEM_PROPERTIES), tileSupplier);
+        addBlock(name, block, b -> new BlockNamedItem(b, DEFAULT_ITEM_PROPERTIES), tileSupplier);
     }
 
-    private static void addBlock(String name, Block block, BlockItem item, Supplier<TileEntity> tileSupplier) {
-        addBlock(name, block, item);
+    private static void addBlock(String name, Block block, Function<Block, BlockItem> itemMapper, Supplier<TileEntity> tileSupplier) {
+        addBlock(name, block, itemMapper);
         intermediateTileMap.put(block, tileSupplier);
     }
 
     private static void addBlock(String name, Block block) {
-        addBlock(name, block, new BlockNamedItem(block, DEFAULT_ITEM_PROPERTIES));
+        addBlock(name, block, b -> new BlockNamedItem(b, DEFAULT_ITEM_PROPERTIES));
     }
 
-    private static void addBlock(String name, Block block, BlockItem item) {
-        addItem(name, item);
+    private static void addBlock(String name, Block block, Function<Block, BlockItem> itemMapper) {
+        addItem(name, itemMapper.apply(block));
         intermediateBlockMap.put(name, block);
     }
 
