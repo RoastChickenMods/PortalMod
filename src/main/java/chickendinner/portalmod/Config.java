@@ -16,10 +16,15 @@ public class Config {
 
     public static class Server {
         public ForgeConfigSpec.IntValue rfPerTick;
+        public ForgeConfigSpec.IntValue solidFuelGeneratorCapacity;
+
         public Server(ForgeConfigSpec.Builder builder) {
             builder.push("rf costs");
-                rfPerTick = builder.comment("rf per tick for the thing")
-                        .defineInRange("idklol", 5, 0, 10);
+            rfPerTick = builder.comment("rf per tick for the thing")
+                    .defineInRange("idklol", 5, 0, 10);
+
+            solidFuelGeneratorCapacity = builder.comment("The amount of FE that can be store in the solid fuel generator")
+                    .defineInRange("solid_fuel_generator_capacity", 32000, 0, Integer.MAX_VALUE);
             builder.pop();
         }
     }
