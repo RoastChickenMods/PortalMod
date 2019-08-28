@@ -29,7 +29,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
     private PortalSurface surface = null;
     private int surfaceCoordU = 0;
     private int surfaceCoordV = 0;
-    private boolean relinkFlag = false;
+    private boolean toLink = false;
 
     private Matrix4d transformation = null;
 
@@ -39,7 +39,19 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
 
     @Override
     public void tick() {
-
+        if (toLink) {
+            toLink = false;
+            PortalSurface surface = this.getSurface();
+            if (getWorld() != null && surface != null) {
+                TileEntity tileEntity = getWorld().getTileEntity(this.getDestPos());
+                if (tileEntity instanceof PortalTileEntity) {
+                    surface.destSurface = ((PortalTileEntity) tileEntity).getSurface();
+                }
+            }
+            if (surface == null || surface.getDestSurface() == null) {
+                unlinkPortal();
+            }
+        }
     }
 
     @Override
@@ -62,6 +74,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
             if (compound.contains("surfaceCoordV")) {
                 surfaceCoordV = compound.getInt("surfaceCoordV");
             }
+            toLink = true;
         }
         super.read(compound);
     }
@@ -432,7 +445,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         public static final int X_MAX = 3;
         public static final int Y_MAX = 4;
         public static final int Z_MAX = 5;
-        
+
         private List<BlockPos> positions = new ArrayList<>();
         private Direction direction = null;
         private boolean[][] shape = null;
@@ -442,7 +455,8 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         private BlockPos origin;
         private PortalSurface destSurface;
 
-        private PortalSurface() {}
+        private PortalSurface() {
+        }
 
         @Override
         public CompoundNBT serializeNBT() {
