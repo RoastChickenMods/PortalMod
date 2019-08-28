@@ -1,10 +1,14 @@
 {
   "block.portalmod.portal": "Portal Block",
   "item.portalmod.portal_linker": "Portal Linker",
-  "message.portalmod.linkresult.invalid_state_error": "Failed to link portals: Invalid state. (report this)",
-  "message.portalmod.linkresult.missing_destination_error": "Cannot link portal: Missing destination",
-  "message.portalmod.linkresult.already_linked_error": "Cannot link portal: Already linked",
-  "message.portalmod.linkresult.shape_mismatch_error": "Cannot link portal: Portal shape mismatch",
-  "message.portalmod.linkresult.link_to_self_error": "Cannot link portal: Cannot link portal to itself",
-  "message.portalmod.linkresult.success": "Successfully linked portals"
+
+  "message.portalmod.portal.link.invalid_state": "Failed to link portals: Invalid state. (report this)",
+  "message.portalmod.portal.link.missing_destination": "Cannot link portal: Missing destination",
+  "message.portalmod.portal.link.already_linked": "Cannot link portal: Already linked",
+  "message.portalmod.portal.link.wrong_shape": "Cannot link portal: Portal shape mismatch",
+  "message.portalmod.portal.link.self_link": "Cannot link portal: Cannot link portal to itself",
+  "message.portalmod.portal.link.stored_position": "Set the stored position to %s",
+  "message.portalmod.portal.link.success": "Successfully linked portals",
+  "message.portalmod.portal.unlink.success": "Successfully unlinked portals",
+  "message.portalmod.portal.unlink.not_linked": "Cannot unlink portals: Portal is not linked."
 }

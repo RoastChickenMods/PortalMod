@@ -1,7 +1,7 @@
 package chickendinner.portalmod.group;
 
 import chickendinner.portalmod.PortalMod;
-import chickendinner.portalmod.registry.ModBlocks;
+import chickendinner.portalmod.reference.ModBlocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 

@@ -1,22 +1,22 @@
 package chickendinner.portalmod.util;
 
-import chickendinner.portalmod.PortalMod;
+import chickendinner.portalmod.reference.MessageKey;
 
 public enum PortalLinkResult {
-    INVALID_STATE_ERROR,
-    MISSING_DESTINATION_ERROR,
-    ALREADY_LINKED_ERROR,
-    SHAPE_MISMATCH_ERROR,
-    LINK_TO_SELF_ERROR,
-    SUCCESS;
+    INVALID_STATE_ERROR(MessageKey.PORTAL_LINK_FAIL_INVALID_STATE),
+    MISSING_DESTINATION_ERROR(MessageKey.PORTAL_LINK_FAIL_MISSING_DESTINATION),
+    ALREADY_LINKED_ERROR(MessageKey.PORTAL_LINK_FAIL_ALREADY_LINKED),
+    SHAPE_MISMATCH_ERROR(MessageKey.PORTAL_LINK_FAIL_WRONG_SHAPE),
+    LINK_TO_SELF_ERROR(MessageKey.PORTAL_LINK_FAIL_SELF_LINK),
+    SUCCESS(MessageKey.PORTAL_LINK_SUCCESS);
 
-    private String unlocalizedMessage;
+    private MessageKey message;
 
-    PortalLinkResult() {
-        this.unlocalizedMessage = "message." + PortalMod.ID + ".linkresult." + this.name().toLowerCase();
+    PortalLinkResult(MessageKey message) {
+        this.message = message;
     }
 
-    public String getUnlocalizedMessage() {
-        return unlocalizedMessage;
+    public MessageKey getMessage() {
+        return message;
     }
 }

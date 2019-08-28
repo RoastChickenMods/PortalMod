@@ -1,7 +1,7 @@
 package chickendinner.portalmod.tileentity;
 
 import chickendinner.portalmod.block.PortalBlock;
-import chickendinner.portalmod.registry.ModTileTypes;
+import chickendinner.portalmod.reference.ModTileTypes;
 import chickendinner.portalmod.util.PortalLinkResult;
 import chickendinner.portalmod.util.VectorUtils;
 import net.minecraft.nbt.ByteNBT;

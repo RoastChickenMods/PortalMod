@@ -1,7 +1,7 @@
 package chickendinner.portalmod;
 
 import chickendinner.portalmod.block.PortalBlock;
-import chickendinner.portalmod.registry.ModBlocks;
+import chickendinner.portalmod.reference.ModBlocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;

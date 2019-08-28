@@ -2,7 +2,8 @@ package chickendinner.portalmod.item;
 
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
-import chickendinner.portalmod.registry.Names;
+import chickendinner.portalmod.reference.MessageKey;
+import chickendinner.portalmod.reference.Names;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import chickendinner.portalmod.util.PlayerUtil;
 import chickendinner.portalmod.util.PortalLinkResult;
@@ -23,7 +24,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
-import static chickendinner.portalmod.registry.Names.PORTAL_LINKER;
+import static chickendinner.portalmod.reference.Names.PORTAL_LINKER;
 
 public class PortalLinkerItem extends Item {
 
@@ -46,39 +47,38 @@ public class PortalLinkerItem extends Item {
         }
 
         if (((PortalTileEntity) tile).isLinked()) {
-            PlayerUtil.tellPlayer(player, PortalLinkResult.ALREADY_LINKED_ERROR.getUnlocalizedMessage());
+            PlayerUtil.tellPlayer(player, PortalLinkResult.ALREADY_LINKED_ERROR.getMessage());
             return ActionResultType.FAIL;
         }
 
         ItemStack heldItem = player.getHeldItem(context.getHand());
-
         BlockPos linkPosition = getLink(heldItem);
         if (linkPosition == null) {
             if (hasLink(heldItem)) {
                 removeLink(heldItem);
-                PlayerUtil.tellPlayer(player, "Something broke, clearing stored position.");
+                PlayerUtil.tellPlayer(player, MessageKey.PORTAL_LINK_POSITION_CLEARED);
                 return ActionResultType.SUCCESS; // Because we did something (remove the link)
             }
             setLink(heldItem, pos);
-            PlayerUtil.tellPlayer(player, String.format("Set the stored position to %s", VectorUtils.convertToCoordinate(pos)));
+            PlayerUtil.tellPlayer(player, MessageKey.PORTAL_LINK_STORED_POSITION, VectorUtils.convertToCoordinate(pos));
             return ActionResultType.SUCCESS; // Because we did something (set the link)
         }
 
         TileEntity portalTile = world.getTileEntity(linkPosition);
         if (!(portalTile instanceof PortalTileEntity)) {
-            PlayerUtil.tellPlayer(player, PortalLinkResult.MISSING_DESTINATION_ERROR.getUnlocalizedMessage());
+            PlayerUtil.tellPlayer(player, MessageKey.PORTAL_LINK_FAIL_MISSING_DESTINATION);
             removeLink(heldItem);
             return ActionResultType.SUCCESS; // Because we did something (remove the link)
         }
 
         if (((PortalTileEntity) portalTile).isLinked()) {
-            PlayerUtil.tellPlayer(player, PortalLinkResult.ALREADY_LINKED_ERROR.getUnlocalizedMessage());
+            PlayerUtil.tellPlayer(player, MessageKey.PORTAL_LINK_FAIL_ALREADY_LINKED);
             removeLink(heldItem);
             return ActionResultType.SUCCESS; // Because we did something (remove the link)
         }
 
         PortalLinkResult portalLinkResult = ((PortalTileEntity) portalTile).linkPortal(((PortalTileEntity) tile));
-        PlayerUtil.tellPlayer(player, portalLinkResult.getUnlocalizedMessage());
+        PlayerUtil.tellPlayer(player, portalLinkResult.getMessage());
         removeLink(heldItem);
         return ActionResultType.SUCCESS; // Because we did something (remove the link)
     }
@@ -97,7 +97,7 @@ public class PortalLinkerItem extends Item {
     public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand) {
         if (player.isSneaking()) {
             removeLink(player.getHeldItem(hand));
-            PlayerUtil.tellPlayer(player, "Stored position has been cleared.");
+            PlayerUtil.tellPlayer(player, MessageKey.PORTAL_LINK_POSITION_CLEARED);
         }
         return super.onItemRightClick(world, player, hand);
     }

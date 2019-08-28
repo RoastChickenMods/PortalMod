@@ -1,6 +1,6 @@
 package chickendinner.portalmod.block;
 
-import chickendinner.portalmod.registry.ModBlocks;
+import chickendinner.portalmod.reference.ModBlocks;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -20,7 +20,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;

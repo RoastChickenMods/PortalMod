@@ -5,6 +5,7 @@ import chickendinner.portalmod.block.PortalBlock;
 import chickendinner.portalmod.group.PortalModGroup;
 import chickendinner.portalmod.item.PortalLinkBreakerItem;
 import chickendinner.portalmod.item.PortalLinkerItem;
+import chickendinner.portalmod.reference.Names;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
