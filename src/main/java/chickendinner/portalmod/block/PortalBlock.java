@@ -20,6 +20,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -68,17 +69,47 @@ public class PortalBlock extends Block {
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entityIn) {
         TileEntity tileEntity = world.getTileEntity(pos);
         if (tileEntity instanceof PortalTileEntity) {
-            PortalTileEntity portal = (PortalTileEntity) tileEntity;
-            BlockPos destPos = portal.getDestPos();
-            if (destPos == null) return;
-            BlockState destState = world.getBlockState(destPos);
-            Direction newDir = destState.get(FACING);
-            float rY = newDir.getHorizontalAngle() - entityIn.getYaw(0);
-            Vec3d offset = new Vec3d(destPos);
-            Vec3d old = entityIn.getPositionVec();
-            Vec3d oldOffset = old.subtract(pos.getX(), pos.getY(), pos.getZ());
-            oldOffset.rotateYaw(rY).scale(-1);
-            entityIn.setPositionAndRotation(offset.getX() + oldOffset.x % 1, offset.getY() + oldOffset.y % 1, offset.getZ() + oldOffset.z % 1, entityIn.getYaw(0) + rY, entityIn.getPitch(0));
+            PortalTileEntity portalTile = (PortalTileEntity) tileEntity;
+
+            if (portalTile.isLinked()) {
+
+                Vec3d entityPosition = entityIn.getPositionVector();
+                Vec3d entityLookVector = entityIn.getLookVec();
+
+                Vec3d transformedPosition = portalTile.getTransformedPoint(entityPosition).add(new Vec3d(portalTile.getDestSurface().getDirection().getDirectionVec()).scale(0.5));
+                Vec3d transformedLookVector = entityLookVector.normalize();//portalTile.getTransformedVector(entityLookVector);
+
+                double ox = entityIn.posX;
+                double oy = entityIn.posY;
+                double oz = entityIn.posZ;
+                float oYaw = entityIn.rotationYaw;
+                float oPitch = entityIn.rotationPitch;
+
+                double x = transformedPosition.getX();
+                double y = transformedPosition.getY();
+                double z = transformedPosition.getZ();
+                float yaw = (float) Math.toDegrees(Math.atan2(transformedLookVector.getX(), transformedLookVector.getZ()));
+                float pitch = (float) Math.toDegrees(Math.asin(-transformedLookVector.getY()));
+
+                System.out.println(String.format("Teleported player from [%f, %f, %f, %f, %f] to [%f, %f, %f, %f, %f] (%f blocks)", ox, oy, oz, oPitch, oYaw, x, y, z, yaw, pitch,
+                        Math.sqrt((x - ox) * (x - ox) + (y - oy) * (y - oy) + (z - oz) * (z - oz))
+                ));
+
+                entityIn.setPositionAndRotation(x, y, z, yaw, pitch);
+
+                portalTile.unlinkPortal();
+
+//            BlockPos destPos = portalTile.getDestPos();
+//            if (destPos == null) return;
+//            BlockState destState = world.getBlockState(destPos);
+//            Direction newDir = destState.get(FACING);
+//            float rY = newDir.getHorizontalAngle() - entityIn.getYaw(0);
+//            Vec3d offset = new Vec3d(destPos);
+//            Vec3d old = entityIn.getPositionVec();
+//            Vec3d oldOffset = old.subtract(pos.getX(), pos.getY(), pos.getZ());
+//            oldOffset.rotateYaw(rY).scale(-1);
+//            entityIn.setPositionAndRotation(offset.getX() + oldOffset.x % 1, offset.getY() + oldOffset.y % 1, offset.getZ() + oldOffset.z % 1, entityIn.getYaw(0) + rY, entityIn.getPitch(0));
+            }
         }
         super.onEntityCollision(state, world, pos, entityIn);
     }
