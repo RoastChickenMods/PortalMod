@@ -3,6 +3,7 @@ package chickendinner.portalmod.registry;
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.*;
 import chickendinner.portalmod.group.PortalModGroup;
+import chickendinner.portalmod.item.EntangledPairItem;
 import chickendinner.portalmod.item.PortalLinkBreakerItem;
 import chickendinner.portalmod.item.PortalLinkerItem;
 import chickendinner.portalmod.reference.Names;
@@ -47,6 +48,7 @@ public final class RegistryHandler {
         addBlock(Names.ENTANGLEMENT_CATCHER, new EntanglementCatcherBlock(Block.Properties.from(Blocks.IRON_BLOCK)), EntanglementCatcherTile::new);
         addItem(Names.PORTAL_LINKER, new PortalLinkerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
         addItem(Names.PORTAL_LINK_BREAKER, new PortalLinkBreakerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
+        addItem(Names.ENTANGLED_PAIR, new EntangledPairItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(2)));
     }
 
     @SubscribeEvent

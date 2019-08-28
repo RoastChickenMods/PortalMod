@@ -10,4 +10,5 @@ public class Names {
     public static final String SLIT_CANNON = "slit_cannon";
     public static final String SLIT_BLOCK = "slit_block";
     public static final String ENTANGLEMENT_CATCHER = "entanglement_catcher";
+    public static final String ENTANGLED_PAIR = "entangled_pair";
 }
