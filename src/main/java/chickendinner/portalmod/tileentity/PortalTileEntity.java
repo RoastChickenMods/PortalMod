@@ -4,7 +4,9 @@ import chickendinner.portalmod.block.PortalBlock;
 import chickendinner.portalmod.registry.ModTileTypes;
 import chickendinner.portalmod.util.PortalLinkResult;
 import chickendinner.portalmod.util.VectorUtils;
+import net.minecraft.nbt.ByteNBT;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -13,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.INBTSerializable;
 
 import javax.vecmath.AxisAngle4d;
 import javax.vecmath.Matrix4d;
@@ -36,29 +39,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
 
     @Override
     public void tick() {
-        World world = this.getWorld();
 
-        if (world != null) {
-            if (relinkFlag) {
-                relinkFlag = false;
-
-                if (!this.isLinked() && this.destPos != null) {
-                    TileEntity tile = world.getTileEntity(this.destPos);
-
-                    if (tile instanceof PortalTileEntity) {
-                        PortalLinkResult portalLinkResult = this.linkPortal(((PortalTileEntity) tile));
-                        if (portalLinkResult != PortalLinkResult.SUCCESS) {
-                            System.err.println("Failed to load portal link: " + portalLinkResult.toString());
-                        }
-                    } else {
-                        System.err.println(String.format("Failed to load portal link from [%d,%d,%d] to [%d,%d,%d]. Destination position is not a portal tile",
-                                this.getPos().getX(), this.getPos().getY(), this.getPos().getZ(),
-                                this.destPos.getX(), this.destPos.getY(), this.destPos.getZ())
-                        );
-                    }
-                }
-            }
-        }
     }
 
     @Override
@@ -69,18 +50,35 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
 
     @Override
     public void read(CompoundNBT compound) {
-        if (compound.contains("destPos")) {
-            this.destPos = NBTUtil.readBlockPos(compound.getCompound("destPos"));
-            this.relinkFlag = true;
+        if (compound.contains("surface")) {
+            surface = new PortalSurface();
+            surface.deserializeNBT(compound.getCompound("surface"));
+            if (compound.contains("destPos")) {
+                destPos = NBTUtil.readBlockPos(compound.getCompound("destPos"));
+            }
+            if (compound.contains("surfaceCoordU")) {
+                surfaceCoordU = compound.getInt("surfaceCoordU");
+            }
+            if (compound.contains("surfaceCoordV")) {
+                surfaceCoordV = compound.getInt("surfaceCoordV");
+            }
         }
-
         super.read(compound);
     }
 
     @Override
     public CompoundNBT write(CompoundNBT compound) {
-        if (destPos != null) {
-            compound.put("destPos", NBTUtil.writeBlockPos(this.destPos));
+        if (surface != null) {
+            compound.put("surface", surface.serializeNBT());
+            if (getDestPos() != null) {
+                compound.put("destPos", NBTUtil.writeBlockPos(getDestPos()));
+            }
+            if (getSurfaceCoordU() != 0) {
+                compound.putInt("surfaceCoordU", getSurfaceCoordU());
+            }
+            if (getSurfaceCoordV() != 0) {
+                compound.putInt("surfaceCoordV", getSurfaceCoordV());
+            }
         }
 
         return super.write(compound);
@@ -124,6 +122,11 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         }
 
         return null;
+    }
+
+    @Override
+    public CompoundNBT getUpdateTag() {
+        return write(new CompoundNBT());
     }
 
     public void unlinkPortal() {
@@ -422,14 +425,14 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         return surfaceCoordV;
     }
 
-    public static class PortalSurface {
+    public static class PortalSurface implements INBTSerializable<CompoundNBT> {
         public static final int X_MIN = 0;
         public static final int Y_MIN = 1;
         public static final int Z_MIN = 2;
         public static final int X_MAX = 3;
         public static final int Y_MAX = 4;
         public static final int Z_MAX = 5;
-
+        
         private List<BlockPos> positions = new ArrayList<>();
         private Direction direction = null;
         private boolean[][] shape = null;
@@ -440,6 +443,52 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         private PortalSurface destSurface;
 
         private PortalSurface() {}
+
+        @Override
+        public CompoundNBT serializeNBT() {
+            CompoundNBT nbt = new CompoundNBT();
+            ListNBT positionsNBT = new ListNBT();
+            positions.stream().map(NBTUtil::writeBlockPos).forEach(positionsNBT::add);
+            nbt.put("positions", positionsNBT);
+            nbt.putInt("direction", direction.getIndex());
+            ListNBT shapeNBT = new ListNBT();
+            for (boolean[] booleans : shape) {
+                ListNBT shapeRow = new ListNBT();
+                for (boolean bool : booleans) {
+                    shapeRow.add(new ByteNBT((byte) (bool ? 1 : 0)));
+                }
+                shapeNBT.add(shapeRow);
+            }
+            nbt.put("shape", shapeNBT);
+            nbt.putInt("shapeU", shape.length);
+            nbt.putInt("shapeV", shape[0].length);
+            nbt.putIntArray("bounds", bounds);
+            nbt.putInt("uAxis", uAxis.getIndex());
+            nbt.putInt("vAxis", vAxis.getIndex());
+            nbt.put("origin", NBTUtil.writeBlockPos(origin));
+            return nbt;
+        }
+
+        @Override
+        public void deserializeNBT(CompoundNBT nbt) {
+            ListNBT positionsNBT = nbt.getList("positions", 10);
+            positionsNBT.stream().map(CompoundNBT.class::cast).map(NBTUtil::readBlockPos).forEach(positions::add);
+            direction = Direction.byIndex(nbt.getInt("direction"));
+            ListNBT shapeNBT = nbt.getList("shape", 9);
+            int shapeU = nbt.getInt("shapeU");
+            int shapeV = nbt.getInt("shapeV");
+            shape = new boolean[shapeU][shapeV];
+            for (int u = 0; u < shapeU; u++) {
+                ListNBT list = shapeNBT.getList(u);
+                for (int v = 0; v < shapeV; v++) {
+                    shape[u][v] = ((ByteNBT) list.get(v)).getByte() == 1;
+                }
+            }
+            bounds = nbt.getIntArray("bounds");
+            uAxis = Direction.byIndex(nbt.getInt("uAxis"));
+            vAxis = Direction.byIndex(nbt.getInt("vAxis"));
+            origin = NBTUtil.readBlockPos(nbt.getCompound("origin"));
+        }
 
         public List<BlockPos> getPositions() {
             return Collections.unmodifiableList(positions);
