@@ -1,10 +1,18 @@
 package chickendinner.portalmod.tileentity;
 
-import chickendinner.portalmod.reference.ModTileTypes;
-import net.minecraft.tileentity.TileEntity;
+import chickendinner.portalmod.PortalMod;
+import chickendinner.portalmod.tileentity.base.MachineTile;
+import chickendinner.portalmod.tileentity.module.IModule;
 
-public class SlitCannonTile extends TileEntity {
+import java.util.Set;
+
+public class SlitCannonTile extends MachineTile {
     public SlitCannonTile() {
-        super(ModTileTypes.SLIT_CANNON);
+        super(PortalMod.Tiles.SLIT_CANNON);
+    }
+
+    @Override
+    protected void addModules(Set<IModule> modules) {
+
     }
 }

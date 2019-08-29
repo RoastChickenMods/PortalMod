@@ -19,9 +19,7 @@ public enum TranslatedMessage {
     PORTAL_UNLINK_SUCCESS("portal.unlink.success"),
     PORTAL_UNLINK_FAIL_NOT_LINKED("portal.unlink.not_linked"),
 
-    /* */
-    CANNON_SUCCESS("cannon.load.success")
-    ;
+    /* */;
     private String translationKey;
     private int argCount;
 

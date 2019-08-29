@@ -1,6 +1,6 @@
 package chickendinner.portalmod.tileentity.module;
 
-import chickendinner.portalmod.tileentity.energy.AdvancedEnergyStorage;
+import chickendinner.portalmod.tileentity.energy.WritableEnergyStorage;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -8,22 +8,21 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.Set;
 
 public class EnergyModule implements IModule<IEnergyStorage> {
     private static final String NBT_KET_ENERGY_STORED = "energyStored";
-    private final Predicate<Direction> validFaceTest;
-    private final Supplier<AdvancedEnergyStorage> energyStorage;
+    private final Set<Direction> validDirections;
+    private final WritableEnergyStorage energyStorage;
     private LazyOptional<IEnergyStorage> lazyOptional;
 
-    public EnergyModule(Predicate<Direction> validFaceTest, Supplier<AdvancedEnergyStorage> energyStorage) {
-        this.validFaceTest = validFaceTest;
+    public EnergyModule(Set<Direction> validDirections, WritableEnergyStorage energyStorage) {
+        this.validDirections = validDirections;
         this.energyStorage = energyStorage;
-        this.lazyOptional = LazyOptional.empty();
+        this.lazyOptional = LazyOptional.of(this::getStored);
     }
 
-    public EnergyModule(Supplier<AdvancedEnergyStorage> energyStorage) {
+    public EnergyModule(WritableEnergyStorage energyStorage) {
         this(ALL_DIRECTIONS, energyStorage);
     }
 
@@ -33,7 +32,7 @@ public class EnergyModule implements IModule<IEnergyStorage> {
     }
 
     public IEnergyStorage getStored() {
-        return energyStorage.get();
+        return energyStorage;
     }
 
     @Override
@@ -47,8 +46,8 @@ public class EnergyModule implements IModule<IEnergyStorage> {
     }
 
     @Override
-    public Predicate<Direction> isValidDirection() {
-        return validFaceTest;
+    public Set<Direction> getValidDirections() {
+        return validDirections;
     }
 
     @Override
@@ -59,12 +58,12 @@ public class EnergyModule implements IModule<IEnergyStorage> {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
-        nbt.putInt(NBT_KET_ENERGY_STORED, energyStorage.get().getEnergyStored());
+        nbt.putInt(NBT_KET_ENERGY_STORED, energyStorage.getEnergyStored());
         return nbt;
     }
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
-        energyStorage.get().setEnergyStored(nbt.getInt(NBT_KET_ENERGY_STORED));
+        energyStorage.setEnergyStored(nbt.getInt(NBT_KET_ENERGY_STORED));
     }
 }

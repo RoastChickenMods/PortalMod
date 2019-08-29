@@ -1,6 +1,10 @@
 package chickendinner.portalmod;
 
-import chickendinner.portalmod.block.*;
+import chickendinner.portalmod.block.EntanglementCatcherBlock;
+import chickendinner.portalmod.block.PortalBlock;
+import chickendinner.portalmod.block.SlitCannonBlock;
+import chickendinner.portalmod.block.SolidFuelGeneratorBlock;
+import chickendinner.portalmod.block.base.HorizontalFacingBlock;
 import chickendinner.portalmod.config.Config;
 import chickendinner.portalmod.group.PortalModGroup;
 import chickendinner.portalmod.item.EntangledPairItem;
@@ -18,8 +22,6 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
@@ -42,7 +44,7 @@ import static net.minecraft.block.Blocks.IRON_BLOCK;
 public class PortalMod {
     public static final String ID = "portalmod";
     public static final String NAME = "Portal Mod";
-    public static final Marker DEBUG_LOG = MarkerManager.getMarker("PORTALMOD");
+    public static final Marker DEBUG_LOG = MarkerManager.getMarker(NAME);
 
     /**
      * Registers the registry common and client setup event handlers to the mod event bus.
@@ -120,15 +122,11 @@ public class PortalMod {
 
         public static Set<TileEntityType<? extends TileEntity>> get() {
             return ImmutableSet.of(
-                    new ModTileType<>(PortalTileEntity::new, Blocks.PORTAL).setRegistryName(rl(Names.PORTAL)),
-                    new ModTileType<>(SolidFuelGeneratorTile::new, Blocks.SOLID_FUEL_GENERATOR).setRegistryName(rl(Names.SOLID_FUEL_GENERATOR)),
-                    new ModTileType<>(SlitCannonTile::new, Blocks.SLIT_CANNON).setRegistryName(rl(Names.SLIT_CANNON)),
-                    new ModTileType<>(EntanglementCatcherTile::new, Blocks.ENTANGLEMENT_CATCHER).setRegistryName(rl(Names.ENTANGLEMENT_CATCHER))
+                    new ModTileType<>(PortalTileEntity::new, b -> b == Blocks.PORTAL).setRegistryName(rl(Names.PORTAL)),
+                    new ModTileType<>(SolidFuelGeneratorTile::new, b -> b == Blocks.SOLID_FUEL_GENERATOR).setRegistryName(rl(Names.SOLID_FUEL_GENERATOR)),
+                    new ModTileType<>(SlitCannonTile::new, b -> b == Blocks.SLIT_CANNON).setRegistryName(rl(Names.SLIT_CANNON)),
+                    new ModTileType<>(EntanglementCatcherTile::new, b -> b == Blocks.ENTANGLEMENT_CATCHER).setRegistryName(rl(Names.ENTANGLEMENT_CATCHER))
             );
         }
-    }
-
-    public static class Tags {
-        public static final Tag<Item> PORTAL_FRONT_WHITELIST = new ItemTags.Wrapper(rl("portal_front_whitelist"));
     }
 }

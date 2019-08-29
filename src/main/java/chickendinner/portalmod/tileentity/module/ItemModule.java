@@ -8,22 +8,21 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.Set;
 
 public class ItemModule implements IModule<IItemHandler> {
-    private final Predicate<Direction> validDirectionTest;
-    private final Supplier<ItemStackHandler> itemHandler;
+    private final Set<Direction> validDirections;
+    private final ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyOptional;
 
-    public ItemModule(Supplier<ItemStackHandler> itemHandler) {
+    public ItemModule(ItemStackHandler itemHandler) {
         this(ALL_DIRECTIONS, itemHandler);
     }
 
-    public ItemModule(Predicate<Direction> validDirectionTest, Supplier<ItemStackHandler> itemHandler) {
-        this.validDirectionTest = validDirectionTest;
+    public ItemModule(Set<Direction> validDirections, ItemStackHandler itemHandler) {
+        this.validDirections = validDirections;
         this.itemHandler = itemHandler;
-        this.lazyOptional = LazyOptional.empty();
+        this.lazyOptional = LazyOptional.of(this::getStored);
     }
 
     @Override
@@ -33,7 +32,7 @@ public class ItemModule implements IModule<IItemHandler> {
 
     @Override
     public IItemHandler getStored() {
-        return this.itemHandler.get();
+        return this.itemHandler;
     }
 
     @Override
@@ -47,8 +46,8 @@ public class ItemModule implements IModule<IItemHandler> {
     }
 
     @Override
-    public Predicate<Direction> isValidDirection() {
-        return validDirectionTest;
+    public Set<Direction> getValidDirections() {
+        return validDirections;
     }
 
     @Override
@@ -58,11 +57,11 @@ public class ItemModule implements IModule<IItemHandler> {
 
     @Override
     public CompoundNBT serializeNBT() {
-        return itemHandler.get().serializeNBT();
+        return itemHandler.serializeNBT();
     }
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
-        itemHandler.get().deserializeNBT(nbt);
+        itemHandler.deserializeNBT(nbt);
     }
 }

@@ -18,10 +18,6 @@ public class ModTileType<T extends TileEntity> extends TileEntityType<T> {
         this.blockPredicate = blockPredicate;
     }
 
-    public ModTileType(Supplier<T> factory, Block validBlock) {
-        this(factory, validBlock::equals);
-    }
-
     @Nullable
     @Override
     public T create() {
