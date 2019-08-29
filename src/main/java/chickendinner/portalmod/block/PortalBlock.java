@@ -1,10 +1,9 @@
 package chickendinner.portalmod.block;
 
-import chickendinner.portalmod.reference.ModBlocks;
+import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -121,7 +120,7 @@ public class PortalBlock extends Block {
             if (value == front || value.getOpposite() == front) {
                 continue;
             }
-            if (world.getBlockState(pos.offset(value)).getBlock() == ModBlocks.PORTAL) {
+            if (world.getBlockState(pos.offset(value)).getBlock() == PortalMod.Blocks.PORTAL) {
                 continue;
             }
             shape = VoxelShapes.or(shape, getShapeFromDir(value));
@@ -139,7 +138,7 @@ public class PortalBlock extends Block {
 
     @OnlyIn(Dist.CLIENT)
     public boolean isSideInvisible(BlockState state, BlockState adjacentBlockState, Direction side) {
-        return adjacentBlockState.getBlock() == ModBlocks.PORTAL;
+        return adjacentBlockState.getBlock() == PortalMod.Blocks.PORTAL;
     }
 
     @Override
@@ -162,14 +161,14 @@ public class PortalBlock extends Block {
         TileEntity tile = world.getTileEntity(pos);
         ItemStack heldItem = player.getHeldItem(hand);
 
-        if (!heldItem.isEmpty() && heldItem.getItem() instanceof BlockItem && ((BlockItem) heldItem.getItem()).getBlock().getDefaultState().equals(Blocks.STONE.getDefaultState())) {
+        if (!heldItem.isEmpty() && heldItem.getItem() instanceof BlockItem && ((BlockItem) heldItem.getItem()).getBlock().getDefaultState().equals(net.minecraft.block.Blocks.STONE.getDefaultState())) {
             if (tile instanceof PortalTileEntity) {
                 PortalTileEntity portalTile = (PortalTileEntity) tile;
 
                 BlockPos destPos = portalTile.getDestPos();
 
                 if (destPos != null) {
-                    world.setBlockState(destPos, Blocks.STONE.getDefaultState());
+                    world.setBlockState(destPos, net.minecraft.block.Blocks.STONE.getDefaultState());
                     return true;
                 }
 

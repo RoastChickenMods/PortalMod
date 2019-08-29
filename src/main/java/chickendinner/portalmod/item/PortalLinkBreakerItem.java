@@ -1,6 +1,6 @@
 package chickendinner.portalmod.item;
 
-import chickendinner.portalmod.reference.MessageKey;
+import chickendinner.portalmod.reference.TranslatedMessage;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import chickendinner.portalmod.util.PlayerUtil;
 import net.minecraft.item.Item;
@@ -25,11 +25,11 @@ public class PortalLinkBreakerItem extends Item {
         }
         PortalTileEntity portal = (PortalTileEntity) tile;
         if (!portal.isLinked()) {
-            PlayerUtil.tellPlayer(context.getPlayer(), MessageKey.PORTAL_UNLINK_FAIL_NOT_LINKED);
+            PlayerUtil.tellPlayer(context.getPlayer(), TranslatedMessage.PORTAL_UNLINK_FAIL_NOT_LINKED);
             return ActionResultType.SUCCESS; // Did something (told the player they are dumb)
         }
         portal.unlinkPortal();
-        PlayerUtil.tellPlayer(context.getPlayer(), MessageKey.PORTAL_UNLINK_SUCCESS);
+        PlayerUtil.tellPlayer(context.getPlayer(), TranslatedMessage.PORTAL_UNLINK_SUCCESS);
         return ActionResultType.SUCCESS; // Broke link
     }
 }
