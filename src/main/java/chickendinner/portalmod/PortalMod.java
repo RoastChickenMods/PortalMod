@@ -122,10 +122,10 @@ public class PortalMod {
 
         public static Set<TileEntityType<? extends TileEntity>> get() {
             return ImmutableSet.of(
-                    new ModTileType<>(PortalTileEntity::new, b -> b == Blocks.PORTAL).setRegistryName(rl(Names.PORTAL)),
-                    new ModTileType<>(SolidFuelGeneratorTile::new, b -> b == Blocks.SOLID_FUEL_GENERATOR).setRegistryName(rl(Names.SOLID_FUEL_GENERATOR)),
-                    new ModTileType<>(SlitCannonTile::new, b -> b == Blocks.SLIT_CANNON).setRegistryName(rl(Names.SLIT_CANNON)),
-                    new ModTileType<>(EntanglementCatcherTile::new, b -> b == Blocks.ENTANGLEMENT_CATCHER).setRegistryName(rl(Names.ENTANGLEMENT_CATCHER))
+                    new ModTileType<>(PortalTileEntity::new, Blocks.PORTAL).setRegistryName(rl(Names.PORTAL)),
+                    new ModTileType<>(SolidFuelGeneratorTile::new, Blocks.SOLID_FUEL_GENERATOR).setRegistryName(rl(Names.SOLID_FUEL_GENERATOR)),
+                    new ModTileType<>(SlitCannonTile::new, Blocks.SLIT_CANNON).setRegistryName(rl(Names.SLIT_CANNON)),
+                    new ModTileType<>(EntanglementCatcherTile::new, Blocks.ENTANGLEMENT_CATCHER).setRegistryName(rl(Names.ENTANGLEMENT_CATCHER))
             );
         }
     }
