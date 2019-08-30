@@ -22,13 +22,13 @@ import static chickendinner.portalmod.block.SolidFuelGeneratorBlock.State.BURNIN
 import static chickendinner.portalmod.block.SolidFuelGeneratorBlock.State.IDLE;
 
 public class SolidFuelGeneratorTile extends MachineTile implements ITickableTileEntity {
-    private static final SolidFuelGeneratorConfig SOLID_FUEL_GENERATOR_CONFIG = SolidFuelGeneratorConfig.INSTANCE;
+    private static final SolidFuelGeneratorConfig CONFIG = SolidFuelGeneratorConfig.INSTANCE;
     private AdvancedEnergyStorage energyStorage;
     private ItemStackHandler itemStackHandler;
 
     public SolidFuelGeneratorTile() {
         super(PortalMod.Tiles.SOLID_FUEL_GENERATOR);
-        energyStorage = new AdvancedEnergyStorage(SOLID_FUEL_GENERATOR_CONFIG.getFeCapacity(), 0, SOLID_FUEL_GENERATOR_CONFIG.getFeOutputPerTick());
+        energyStorage = new AdvancedEnergyStorage(CONFIG.getFeCapacity(), 0, CONFIG.getFeOutputPerTick());
         itemStackHandler = new ItemStackHandler(1) {
             @Override
             public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
@@ -72,7 +72,7 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
     private void checkForFuel() {
         if (this.hasFuel()) {
             ItemStack fuel = this.itemStackHandler.extractItem(0, 1, false);
-            this.setWorkLeft((int) Math.floor(Util.getBurnTime(fuel) * SOLID_FUEL_GENERATOR_CONFIG.getBurnTimeMultiplier()));
+            this.setWorkLeft((int) Math.floor(Util.getBurnTime(fuel) * CONFIG.getBurnTimeMultiplier()));
             this.getWorld().setBlockState(this.getPos(), this.getBlockState().with(STATE, BURNING), 3);
         }
     }
@@ -89,6 +89,6 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
     }
 
     private void generatePower() {
-        this.energyStorage.supply(SOLID_FUEL_GENERATOR_CONFIG.getFePerBurnTime());
+        this.energyStorage.supply(CONFIG.getFePerBurnTime());
     }
 }

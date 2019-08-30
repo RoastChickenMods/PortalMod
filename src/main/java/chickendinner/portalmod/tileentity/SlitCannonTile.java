@@ -1,7 +1,6 @@
 package chickendinner.portalmod.tileentity;
 
 import chickendinner.portalmod.PortalMod;
-import chickendinner.portalmod.config.Config;
 import chickendinner.portalmod.config.SlitCannonConfig;
 import chickendinner.portalmod.tileentity.base.MachineTile;
 import chickendinner.portalmod.tileentity.energy.AdvancedEnergyStorage;
@@ -18,7 +17,7 @@ import javax.annotation.Nonnull;
 import java.util.Set;
 
 public class SlitCannonTile extends MachineTile {
-    private static final SlitCannonConfig SLIT_CANNON_CONFIG = SlitCannonConfig.INSTANCE;
+    private static final SlitCannonConfig CONFIG = SlitCannonConfig.INSTANCE;
     private final AdvancedEnergyStorage energyStorage;
     private final ItemStackHandler itemStorage;
 
@@ -56,6 +55,6 @@ public class SlitCannonTile extends MachineTile {
     }
 
     private boolean hasRequiredPower() {
-        return energyStorage.getEnergyStored() >= SLIT_CANNON_CONFIG.getFePerLaunch();
+        return energyStorage.getEnergyStored() >= CONFIG.getFePerLaunch();
     }
 }
