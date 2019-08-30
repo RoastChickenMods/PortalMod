@@ -1,6 +1,6 @@
 package chickendinner.portalmod.tileentity.module;
 
-import chickendinner.portalmod.tileentity.energy.WritableEnergyStorage;
+import chickendinner.portalmod.tileentity.energy.AdvancedEnergyStorage;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -13,16 +13,16 @@ import java.util.Set;
 public class EnergyModule implements IModule<IEnergyStorage> {
     private static final String NBT_KET_ENERGY_STORED = "energyStored";
     private final Set<Direction> validDirections;
-    private final WritableEnergyStorage energyStorage;
+    private final AdvancedEnergyStorage energyStorage;
     private LazyOptional<IEnergyStorage> lazyOptional;
 
-    public EnergyModule(Set<Direction> validDirections, WritableEnergyStorage energyStorage) {
+    public EnergyModule(Set<Direction> validDirections, AdvancedEnergyStorage energyStorage) {
         this.validDirections = validDirections;
         this.energyStorage = energyStorage;
         this.lazyOptional = LazyOptional.of(this::getStored);
     }
 
-    public EnergyModule(WritableEnergyStorage energyStorage) {
+    public EnergyModule(AdvancedEnergyStorage energyStorage) {
         this(ALL_DIRECTIONS, energyStorage);
     }
 

@@ -1,6 +1,6 @@
 package chickendinner.portalmod.reference;
 
-import chickendinner.portalmod.tileentity.energy.WritableEnergyStorage;
+import chickendinner.portalmod.tileentity.energy.AdvancedEnergyStorage;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.IntNBT;
@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class NBTKey<T, NBT extends INBT> {
-    public static final NBTKey<WritableEnergyStorage, IntNBT> ENERGY = new NBTKey<>("energy", storage -> new IntNBT(storage.getEnergyStored()), (storage, nbt) -> storage.setEnergyStored(nbt.getInt()));
+    public static final NBTKey<AdvancedEnergyStorage, IntNBT> ENERGY = new NBTKey<>("energy", storage -> new IntNBT(storage.getEnergyStored()), (storage, nbt) -> storage.setEnergyStored(nbt.getInt()));
     public static final NBTKey<ItemStackHandler, CompoundNBT> ITEM = new NBTKey<>("storedItems", ItemStackHandler::serializeNBT, ItemStackHandler::deserializeNBT);
     private final String key;
     private final Function<T, NBT> mappingFunction;

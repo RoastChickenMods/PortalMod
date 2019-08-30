@@ -1,9 +1,9 @@
 package chickendinner.portalmod.tileentity;
 
 import chickendinner.portalmod.PortalMod;
-import chickendinner.portalmod.config.Config;
+import chickendinner.portalmod.config.SolidFuelGeneratorConfig;
 import chickendinner.portalmod.tileentity.base.MachineTile;
-import chickendinner.portalmod.tileentity.energy.WritableEnergyStorage;
+import chickendinner.portalmod.tileentity.energy.AdvancedEnergyStorage;
 import chickendinner.portalmod.tileentity.module.EnergyModule;
 import chickendinner.portalmod.tileentity.module.IModule;
 import chickendinner.portalmod.tileentity.module.ItemModule;
@@ -22,12 +22,13 @@ import static chickendinner.portalmod.block.SolidFuelGeneratorBlock.State.BURNIN
 import static chickendinner.portalmod.block.SolidFuelGeneratorBlock.State.IDLE;
 
 public class SolidFuelGeneratorTile extends MachineTile implements ITickableTileEntity {
-    private WritableEnergyStorage energyStorage;
+    private static final SolidFuelGeneratorConfig SOLID_FUEL_GENERATOR_CONFIG = SolidFuelGeneratorConfig.INSTANCE;
+    private AdvancedEnergyStorage energyStorage;
     private ItemStackHandler itemStackHandler;
 
     public SolidFuelGeneratorTile() {
         super(PortalMod.Tiles.SOLID_FUEL_GENERATOR);
-        energyStorage = new WritableEnergyStorage(Config.SERVER.solidFuelGeneratorCapacity.get());
+        energyStorage = new AdvancedEnergyStorage(SOLID_FUEL_GENERATOR_CONFIG.getFeCapacity());
         itemStackHandler = new ItemStackHandler(1) {
             @Override
             public boolean isItemValid(int slot, @Nonnull ItemStack stack) {

@@ -1,27 +1,37 @@
 package chickendinner.portalmod.config;
 
 
+import com.google.common.collect.ImmutableSet;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Set;
+
 public class Config {
+    private static final Set<IConfigHolder> CONFIG_HOLDERS;
+
     public static final Server SERVER;
     public static final ForgeConfigSpec SERVER_SPEC;
 
     static {
+        CONFIG_HOLDERS = ImmutableSet.of(
+                SolidFuelGeneratorConfig.INSTANCE,
+                SlitCannonConfig.INSTANCE
+        );
         final Pair<Server, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Server::new);
         SERVER_SPEC = specPair.getRight();
         SERVER = specPair.getLeft();
     }
 
     public static class Server {
-        public ForgeConfigSpec.IntValue solidFuelGeneratorCapacity;
-
-        public Server(ForgeConfigSpec.Builder builder) {
-            builder.push("general");
-            solidFuelGeneratorCapacity = builder.comment("The amount of FE that can be store in the solid fuel generator")
-                    .defineInRange("solid_fuel_generator_capacity", 32000, 0, Integer.MAX_VALUE);
-            builder.pop();
+        public Server(final ForgeConfigSpec.Builder builder) {
+            CONFIG_HOLDERS.stream()
+                    .filter(IConfigHolder::hasServer)
+                    .forEach(holder -> {
+                        builder.push(holder.getName());
+                        holder.writeServer(builder);
+                        builder.pop();
+                    });
         }
     }
 }
