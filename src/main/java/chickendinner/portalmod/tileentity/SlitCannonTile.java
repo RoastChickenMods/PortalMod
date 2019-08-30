@@ -23,7 +23,7 @@ public class SlitCannonTile extends MachineTile {
 
     public SlitCannonTile() {
         super(PortalMod.Tiles.SLIT_CANNON);
-        energyStorage = new AdvancedEnergyStorage(10_000_000, 10_000, 0);
+        energyStorage = new AdvancedEnergyStorage(CONFIG.getFeCapacity(), CONFIG.getFeInputPerTick(), 0);
         itemStorage = new ItemStackHandler(1) {
             @Override
             public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
