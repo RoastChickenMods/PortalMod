@@ -49,9 +49,13 @@ public class SlitCannonTile extends MachineTile {
     }
 
     public void firePearl() {
-        if (hasRequiredPower()) {
-
+        if (hasRequiredPower() && containsItem()) {
+            // DO THE THING
         }
+    }
+
+    private boolean containsItem() { //TODO: replace with a tag.
+        return itemStorage.getStackInSlot(0).getItem() == Items.ENDER_EYE;
     }
 
     private boolean hasRequiredPower() {
