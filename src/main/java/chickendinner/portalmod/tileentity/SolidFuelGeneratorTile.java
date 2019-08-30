@@ -28,7 +28,7 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
 
     public SolidFuelGeneratorTile() {
         super(PortalMod.Tiles.SOLID_FUEL_GENERATOR);
-        energyStorage = new AdvancedEnergyStorage(SOLID_FUEL_GENERATOR_CONFIG.getFeCapacity());
+        energyStorage = new AdvancedEnergyStorage(SOLID_FUEL_GENERATOR_CONFIG.getFeCapacity(), 0, SOLID_FUEL_GENERATOR_CONFIG.getFeOutputPerTick());
         itemStackHandler = new ItemStackHandler(1) {
             @Override
             public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
@@ -39,7 +39,7 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
 
             @Override
             protected void onContentsChanged(int slot) {
-                markDirty();
+                SolidFuelGeneratorTile.this.markDirty();
             }
         };
     }
@@ -52,28 +52,28 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
 
     @Override
     public CompoundNBT getTileData() {
-        return write(super.getTileData());
+        return this.write(super.getTileData());
     }
 
     @Override
     public void tick() {
-        BlockState state = getBlockState();
+        BlockState state = this.getBlockState();
         switch (state.get(STATE)) {
             case BURNING:
-                generatePower();
-                consumeFuel();
+                this.generatePower();
+                this.consumeFuel();
                 break;
             case IDLE:
-                checkForFuel();
+                this.checkForFuel();
                 break;
         }
     }
 
     private void checkForFuel() {
-        if (hasFuel()) {
-            ItemStack fuel = itemStackHandler.extractItem(0, 1, false);
-            setWorkLeft(Util.getBurnTime(fuel));
-            getWorld().setBlockState(pos, getBlockState().with(STATE, BURNING), 3);
+        if (this.hasFuel()) {
+            ItemStack fuel = this.itemStackHandler.extractItem(0, 1, false);
+            this.setWorkLeft((int) Math.floor(Util.getBurnTime(fuel) * SOLID_FUEL_GENERATOR_CONFIG.getBurnTimeMultiplier()));
+            this.getWorld().setBlockState(this.getPos(), this.getBlockState().with(STATE, BURNING), 3);
         }
     }
 
@@ -83,12 +83,12 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
 
     private void consumeFuel() {
         decrementWorkLeft();
-        if (getWorkLeft() == 0) {
-            getWorld().setBlockState(pos, getBlockState().with(STATE, IDLE), 3);
+        if (this.getWorkLeft() == 0) {
+            this.getWorld().setBlockState(this.getPos(), this.getBlockState().with(STATE, IDLE), 3);
         }
     }
 
     private void generatePower() {
-        this.energyStorage.setEnergyStored(this.energyStorage.getEnergyStored() + 20);
+        this.energyStorage.supply(SOLID_FUEL_GENERATOR_CONFIG.getFePerBurnTime());
     }
 }
