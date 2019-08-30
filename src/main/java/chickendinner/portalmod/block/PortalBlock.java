@@ -1,14 +1,15 @@
 package chickendinner.portalmod.block;
 
-import chickendinner.portalmod.PortalMod;
+import chickendinner.portalmod.reference.ModBlocks;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.*;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.EnderPearlItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
@@ -65,37 +66,45 @@ public class PortalBlock extends Block {
 
     @Override
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entityIn) {
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if (tileEntity instanceof PortalTileEntity) {
-            PortalTileEntity portalTile = (PortalTileEntity) tileEntity;
+//        if (!world.isRemote) {
+        {
+            TileEntity tileEntity = world.getTileEntity(pos);
+            if (tileEntity instanceof PortalTileEntity) {
+                PortalTileEntity portalTile = (PortalTileEntity) tileEntity;
 
-            if (portalTile.isLinked()) {
+                if (portalTile.isLinked()) {
 
-                Vec3d entityPosition = entityIn.getPositionVector();
-                Vec3d entityLookVector = entityIn.getLookVec();
+                    Vec3d entityPosition = entityIn.getPositionVector();
+                    Vec3d entityLookVector = entityIn.getLook(1.0F);
 
-                Vec3d transformedPosition = portalTile.getTransformedPoint(entityPosition).add(new Vec3d(portalTile.getDestSurface().getDirection().getDirectionVec()).scale(0.5));
-                Vec3d transformedLookVector = entityLookVector.normalize();//portalTile.getTransformedVector(entityLookVector);
+                    Vec3d transformedPosition = portalTile.getTransformedPoint(entityPosition);
+                    Vec3d transformedLookVector = portalTile.getTransformedVector(entityLookVector);
 
-                double ox = entityIn.posX;
-                double oy = entityIn.posY;
-                double oz = entityIn.posZ;
-                float oYaw = entityIn.rotationYaw;
-                float oPitch = entityIn.rotationPitch;
+                    double x = transformedPosition.getX();
+                    double y = transformedPosition.getY();
+                    double z = transformedPosition.getZ();
 
-                double x = transformedPosition.getX();
-                double y = transformedPosition.getY();
-                double z = transformedPosition.getZ();
-                float yaw = (float) Math.toDegrees(Math.atan2(transformedLookVector.getX(), transformedLookVector.getZ()));
-                float pitch = (float) Math.toDegrees(Math.asin(-transformedLookVector.getY()));
+                    double xzLen = MathHelper.sqrt(transformedLookVector.getX() * transformedLookVector.getX() + transformedLookVector.getZ() * transformedLookVector.getZ());
+                    entityIn.rotationPitch = MathHelper.wrapDegrees((float)(-(MathHelper.atan2(transformedLookVector.getY(), xzLen) * (double)(180F / (float)Math.PI))));
+                    entityIn.rotationYaw = MathHelper.wrapDegrees((float)(MathHelper.atan2(transformedLookVector.getZ(), transformedLookVector.getX()) * (double)(180F / (float)Math.PI)) - 90.0F);
+//                    entityIn.prevRotationPitch = entityIn.rotationPitch;
+//                    entityIn.prevRotationYaw = entityIn.rotationYaw;
+//
+//                    if (entityIn instanceof ClientPlayerEntity) {
+//                        ((ClientPlayerEntity) entityIn).renderArmPitch = ((ClientPlayerEntity) entityIn).prevRenderArmPitch = entityIn.rotationPitch;
+//                        ((ClientPlayerEntity) entityIn).renderArmYaw = ((ClientPlayerEntity) entityIn).prevRenderArmYaw = entityIn.rotationYaw;
+//                    }
 
-                System.out.println(String.format("Teleported player from [%f, %f, %f, %f, %f] to [%f, %f, %f, %f, %f] (%f blocks)", ox, oy, oz, oPitch, oYaw, x, y, z, yaw, pitch,
-                        Math.sqrt((x - ox) * (x - ox) + (y - oy) * (y - oy) + (z - oz) * (z - oz))
-                ));
+                    if (!world.isRemote) {
+                        entityIn.setPositionAndUpdate(x, y, z);
+                        portalTile.unlinkPortal();
+                    }
 
-                entityIn.setPositionAndRotation(x, y, z, yaw, pitch);
+//                    entityIn.posX = entityIn.prevPosX = entityIn.lastTickPosX = x;
+//                    entityIn.posY = entityIn.prevPosY = entityIn.lastTickPosY = y;
+//                    entityIn.posZ = entityIn.prevPosZ = entityIn.lastTickPosZ = z;
 
-                portalTile.unlinkPortal();
+
 
 //            BlockPos destPos = portalTile.getDestPos();
 //            if (destPos == null) return;
@@ -107,6 +116,7 @@ public class PortalBlock extends Block {
 //            Vec3d oldOffset = old.subtract(pos.getX(), pos.getY(), pos.getZ());
 //            oldOffset.rotateYaw(rY).scale(-1);
 //            entityIn.setPositionAndRotation(offset.getX() + oldOffset.x % 1, offset.getY() + oldOffset.y % 1, offset.getZ() + oldOffset.z % 1, entityIn.getYaw(0) + rY, entityIn.getPitch(0));
+                }
             }
         }
         super.onEntityCollision(state, world, pos, entityIn);
@@ -120,7 +130,7 @@ public class PortalBlock extends Block {
             if (value == front || value.getOpposite() == front) {
                 continue;
             }
-            if (world.getBlockState(pos.offset(value)).getBlock() == PortalMod.Blocks.PORTAL) {
+            if (world.getBlockState(pos.offset(value)).getBlock() == ModBlocks.PORTAL) {
                 continue;
             }
             shape = VoxelShapes.or(shape, getShapeFromDir(value));
@@ -138,12 +148,12 @@ public class PortalBlock extends Block {
 
     @OnlyIn(Dist.CLIENT)
     public boolean isSideInvisible(BlockState state, BlockState adjacentBlockState, Direction side) {
-        return adjacentBlockState.getBlock() == PortalMod.Blocks.PORTAL;
+        return adjacentBlockState.getBlock() == ModBlocks.PORTAL;
     }
 
     @Override
-    public BlockRenderLayer getRenderLayer() {
-        return BlockRenderLayer.CUTOUT_MIPPED;
+    public BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.INVISIBLE;
     }
 
     @Override
@@ -161,14 +171,14 @@ public class PortalBlock extends Block {
         TileEntity tile = world.getTileEntity(pos);
         ItemStack heldItem = player.getHeldItem(hand);
 
-        if (!heldItem.isEmpty() && heldItem.getItem() instanceof BlockItem && ((BlockItem) heldItem.getItem()).getBlock().getDefaultState().equals(net.minecraft.block.Blocks.STONE.getDefaultState())) {
+        if (!heldItem.isEmpty() && heldItem.getItem() instanceof BlockItem && ((BlockItem) heldItem.getItem()).getBlock().getDefaultState().equals(Blocks.STONE.getDefaultState())) {
             if (tile instanceof PortalTileEntity) {
                 PortalTileEntity portalTile = (PortalTileEntity) tile;
 
                 BlockPos destPos = portalTile.getDestPos();
 
                 if (destPos != null) {
-                    world.setBlockState(destPos, net.minecraft.block.Blocks.STONE.getDefaultState());
+                    world.setBlockState(destPos, Blocks.STONE.getDefaultState());
                     return true;
                 }
 

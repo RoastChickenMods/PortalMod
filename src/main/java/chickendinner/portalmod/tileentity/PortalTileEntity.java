@@ -8,6 +8,8 @@ import net.minecraft.nbt.ByteNBT;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTUtil;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -17,11 +19,11 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import javax.vecmath.AxisAngle4d;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Quat4d;
-import javax.vecmath.Vector3d;
+import javax.annotation.Nullable;
+import javax.vecmath.*;
 import java.util.*;
+import java.util.stream.DoubleStream;
+import java.util.stream.LongStream;
 
 public class PortalTileEntity extends TileEntity implements ITickableTileEntity {
 
@@ -31,8 +33,6 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
     private int surfaceCoordV = 0;
     private boolean toLink = false;
 
-    private Matrix4d transformation = null;
-
     public PortalTileEntity() {
         super(PortalMod.Tiles.PORTAL);
     }
@@ -41,6 +41,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
     public void tick() {
         if (toLink) {
             toLink = false;
+
             PortalSurface surface = this.getSurface();
             if (getWorld() != null && surface != null) {
                 TileEntity tileEntity = getWorld().getTileEntity(this.getDestPos());
@@ -63,83 +64,124 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
     @Override
     public void read(CompoundNBT compound) {
         if (compound.contains("surface")) {
-            surface = new PortalSurface();
-            surface.deserializeNBT(compound.getCompound("surface"));
+            this.surface = new PortalSurface();
+            this.surface.deserializeNBT(compound.getCompound("surface"));
+
             if (compound.contains("destPos")) {
-                destPos = NBTUtil.readBlockPos(compound.getCompound("destPos"));
+                this.destPos = NBTUtil.readBlockPos(compound.getCompound("destPos"));
             }
             if (compound.contains("surfaceCoordU")) {
-                surfaceCoordU = compound.getInt("surfaceCoordU");
+                this.surfaceCoordU = compound.getInt("surfaceCoordU");
             }
             if (compound.contains("surfaceCoordV")) {
-                surfaceCoordV = compound.getInt("surfaceCoordV");
+                this.surfaceCoordV = compound.getInt("surfaceCoordV");
             }
-            toLink = true;
+            this.toLink = true;
+        } else {
+            this.destPos = null;
+            this.surface = null;
+            this.surfaceCoordU = 0;
+            this.surfaceCoordV = 0;
         }
+
         super.read(compound);
     }
 
     @Override
     public CompoundNBT write(CompoundNBT compound) {
-        if (surface != null) {
-            compound.put("surface", surface.serializeNBT());
-            if (getDestPos() != null) {
-                compound.put("destPos", NBTUtil.writeBlockPos(getDestPos()));
+        if (this.surface != null) {
+            compound.put("surface", this.surface.serializeNBT());
+            if (this.getDestPos() != null) {
+                compound.put("destPos", NBTUtil.writeBlockPos(this.getDestPos()));
             }
-            if (getSurfaceCoordU() != 0) {
-                compound.putInt("surfaceCoordU", getSurfaceCoordU());
+            if (this.getSurfaceCoordU() != 0) {
+                compound.putInt("surfaceCoordU", this.getSurfaceCoordU());
             }
-            if (getSurfaceCoordV() != 0) {
-                compound.putInt("surfaceCoordV", getSurfaceCoordV());
+            if (this.getSurfaceCoordV() != 0) {
+                compound.putInt("surfaceCoordV", this.getSurfaceCoordV());
             }
         }
 
         return super.write(compound);
     }
 
+    @Nullable
+    @Override
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return new SUpdateTileEntityPacket(this.getPos(), 0, this.getUpdateTag());
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
+        this.read(pkt.getNbtCompound());
+    }
+
     public Vec3d getTransformedPoint(Vec3d point) {
-        Vector3d p = this.getTransformedPoint(new Vector3d(point.getX(), point.getY(), point.getZ()));
-        return new Vec3d(p.getX(), p.getY(), p.getZ());
+        if (this.isLinked()) {
+            Vector3d p = this.getTransformedPoint(new Vector3d(point.getX(), point.getY(), point.getZ()));
+            return new Vec3d(p.getX(), p.getY(), p.getZ());
+        }
+        return null;
+    }
+
+    public Vec3d getTransformedVector(Vec3d vector) {
+        if (this.isLinked()) {
+            Vector3d p = this.getTransformedVector(new Vector3d(vector.getX(), vector.getY(), vector.getZ()));
+            return new Vec3d(p.getX(), p.getY(), p.getZ());
+        }
+        return null;
     }
 
     public Vector3d getTransformedPoint(Vector3d point) {
-
         if (this.isLinked()) {
+            Point3d transformedPoint = new Point3d(point);
             PortalSurface srcSurface = this.getSurface();
-            BlockPos srcBlockPosition = this.getPos();
-            Vector3d srcPortalPosition = new Vector3d(srcBlockPosition.getX(), srcBlockPosition.getY(), srcBlockPosition.getZ());
-            Quat4d srcPortalRotation = new Quat4d();
-            srcPortalRotation.set(new AxisAngle4d(0.0, 1.0, 0.0, Math.toRadians(srcSurface.direction.getHorizontalAngle())));
+            PortalSurface dstSurface = this.getSurface().getDestSurface();
 
-            PortalSurface dstSurface = this.getSurface().destSurface;
-            BlockPos dstBlockPosition = this.getDestPos();
-            Vector3d dstPortalPosition = new Vector3d(dstBlockPosition.getX(), dstBlockPosition.getY(), dstBlockPosition.getZ());
-            Quat4d dstPortalRotation = new Quat4d();
-            dstPortalRotation.set(new AxisAngle4d(0.0, 1.0, 0.0, Math.toRadians(dstSurface.direction.getHorizontalAngle())));
+            double sx = srcSurface.getOrigin().getX() + 0.5 + srcSurface.getDirection().getXOffset() * 0.5;
+            double sy = srcSurface.getOrigin().getY() + 0.5 + srcSurface.getDirection().getYOffset() * 0.5;
+            double sz = srcSurface.getOrigin().getZ() + 0.5 + srcSurface.getDirection().getZOffset() * 0.5;
+            double dx = dstSurface.getOrigin().getX() + 0.5 + dstSurface.getDirection().getXOffset() * 0.5;
+            double dy = dstSurface.getOrigin().getY() + 0.5 + dstSurface.getDirection().getYOffset() * 0.5;
+            double dz = dstSurface.getOrigin().getZ() + 0.5 + dstSurface.getDirection().getZOffset() * 0.5;
 
-            Vector3d portalToPoint = new Vector3d(point);
-            portalToPoint.sub(srcPortalPosition);
-
-            Quat4d srcToDstRotation = VectorUtils.quaternionDifference(srcPortalRotation, dstPortalRotation);
-
-            Quat4d rotate180 = new Quat4d();
-            rotate180.set(new AxisAngle4d(0.0, 1.0, 0.0, Math.PI));
-
-            Vector3d transformedPoint = new Vector3d(portalToPoint);
-            transformedPoint = VectorUtils.rotateVector3d(rotate180, transformedPoint);
-            transformedPoint = VectorUtils.rotateVector3d(srcToDstRotation, transformedPoint);
-
-            transformedPoint.add(dstPortalPosition);
-
-            return transformedPoint;
+            transformedPoint.sub(new Vector3d(sx, sy, sz));
+            srcSurface.getTransformation().transform(transformedPoint);
+            transformedPoint.add(new Vector3d(dx, dy, dz));
+            return new Vector3d(transformedPoint);
         }
+        return null;
+    }
 
+    public Vector3d getTransformedVector(Vector3d vector) {
+        if (this.isLinked()) {
+            Vector3d transformedVector = new Vector3d(vector);
+            PortalSurface srcSurface = this.getSurface();
+            PortalSurface dstSurface = this.getSurface().getDestSurface();
+
+            Quat4d vecRotation = VectorUtils.rotationBetween(new Vector3d(0.0, 0.0, 1.0), vector);
+
+            Quat4d srcRotation = new Quat4d();
+            srcRotation.set(new AxisAngle4d(0.0, 1.0, 0.0, Math.toDegrees(srcSurface.getDirection().getHorizontalAngle())));
+            srcRotation = VectorUtils.quaternionDifference(srcRotation, vecRotation);
+
+            Quat4d dstRotation = new Quat4d();
+            dstRotation.set(new AxisAngle4d(0.0, 1.0, 0.0, Math.toDegrees(dstSurface.getDirection().getHorizontalAngle())));
+            dstRotation = VectorUtils.quaternionDifference(dstRotation, vecRotation);
+
+//            transformedVector = VectorUtils.rotateVector3d(srcRotation, transformedVector);
+            srcSurface.getTransformation().transform(transformedVector);
+//            transformedVector = VectorUtils.rotateVector3d(dstRotation, transformedVector);
+
+
+            return transformedVector;
+        }
         return null;
     }
 
     @Override
     public CompoundNBT getUpdateTag() {
-        return write(new CompoundNBT());
+        return this.write(new CompoundNBT());
     }
 
     public void unlinkPortal() {
@@ -156,10 +198,10 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
 
                         portalTile.surface = null;
                         portalTile.destPos = null;
-                        portalTile.transformation = null;
                         portalTile.surfaceCoordU = 0;
                         portalTile.surfaceCoordV = 0;
                         portalTile.markDirty();
+                        world.notifyBlockUpdate(position, portalTile.getBlockState(), portalTile.getBlockState(), 3);
                     }
                 }
 
@@ -172,10 +214,10 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
 
                             portalTile.surface = null;
                             portalTile.destPos = null;
-                            portalTile.transformation = null;
                             portalTile.surfaceCoordU = 0;
                             portalTile.surfaceCoordV = 0;
                             portalTile.markDirty();
+                            world.notifyBlockUpdate(position, portalTile.getBlockState(), portalTile.getBlockState(), 3);
                         }
                     }
                 }
@@ -247,6 +289,26 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
             linkBlock(position, surface1, surface0);
         }
 
+        double angleDiff = 360 - (surface1.direction.getHorizontalAngle() - surface0.direction.getOpposite().getHorizontalAngle());
+        if (angleDiff < 0) {
+            angleDiff += 360;
+        }
+
+        Vector3d translationDiff = new Vector3d();
+        translationDiff.setX((surface1.origin.getX() + 0.5 + surface1.direction.getXOffset() * 0.5) - (surface0.origin.getX() + 0.5 + surface1.direction.getXOffset() * 0.5));
+        translationDiff.setY((surface1.origin.getY() + 0.5 + surface1.direction.getYOffset() * 0.5) - (surface0.origin.getY() + 0.5 + surface1.direction.getYOffset() * 0.5));
+        translationDiff.setZ((surface1.origin.getZ() + 0.5 + surface1.direction.getZOffset() * 0.5) - (surface0.origin.getZ() + 0.5 + surface1.direction.getZOffset() * 0.5));
+
+        System.out.println(String.format("Linked portal with angle difference %f, translation difference %f, %f, %f", angleDiff, translationDiff.getX(), translationDiff.getY(), translationDiff.getZ()));
+
+        surface0.transformation = new Matrix4d();
+        surface0.transformation.setTranslation(translationDiff);
+        surface0.transformation.rotY(Math.toRadians(angleDiff));
+
+        surface1.transformation = new Matrix4d();
+        surface1.transformation.set(surface0.transformation);
+        surface1.transformation.invert();
+
         surface0.destSurface = surface1;
         surface1.destSurface = surface0;
 
@@ -271,12 +333,6 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
                 translation.setX(portalTile.destPos.getX() - position.getX());
                 translation.setX(portalTile.destPos.getY() - position.getY());
                 translation.setX(portalTile.destPos.getZ() - position.getZ());
-
-                double horizontalAngle = Math.toRadians(surface1.direction.getHorizontalAngle() - surface0.direction.getHorizontalAngle());
-                Quat4d rotation = new Quat4d();
-                rotation.set(new AxisAngle4d(0.0, 1.0, 0.0, horizontalAngle));
-
-                portalTile.transformation = new Matrix4d(rotation, translation, 1.0);
 
                 portalTile.markDirty();
             }
@@ -385,8 +441,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         return surface;
     }
 
-    private void walkSearch(Direction[] searchPlane, Direction
-            direction, Set<BlockPos> visited, Set<BlockPos> surface, int[] bounds) {
+    private void walkSearch(Direction[] searchPlane, Direction direction, Set<BlockPos> visited, Set<BlockPos> surface, int[] bounds) {
         BlockPos pos = this.getPos();
         World world = this.getWorld();
 
@@ -454,6 +509,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         private Direction vAxis;
         private BlockPos origin;
         private PortalSurface destSurface;
+        private Matrix4d transformation; // Transformation from this surface to the dest surface
 
         private PortalSurface() {
         }
@@ -462,11 +518,11 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         public CompoundNBT serializeNBT() {
             CompoundNBT nbt = new CompoundNBT();
             ListNBT positionsNBT = new ListNBT();
-            positions.stream().map(NBTUtil::writeBlockPos).forEach(positionsNBT::add);
+            this.positions.stream().map(NBTUtil::writeBlockPos).forEach(positionsNBT::add);
             nbt.put("positions", positionsNBT);
-            nbt.putInt("direction", direction.getIndex());
+            nbt.putInt("direction", this.direction.getIndex());
             ListNBT shapeNBT = new ListNBT();
-            for (boolean[] booleans : shape) {
+            for (boolean[] booleans : this.shape) {
                 ListNBT shapeRow = new ListNBT();
                 for (boolean bool : booleans) {
                     shapeRow.add(new ByteNBT((byte) (bool ? 1 : 0)));
@@ -474,12 +530,21 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
                 shapeNBT.add(shapeRow);
             }
             nbt.put("shape", shapeNBT);
-            nbt.putInt("shapeU", shape.length);
-            nbt.putInt("shapeV", shape[0].length);
-            nbt.putIntArray("bounds", bounds);
-            nbt.putInt("uAxis", uAxis.getIndex());
-            nbt.putInt("vAxis", vAxis.getIndex());
-            nbt.put("origin", NBTUtil.writeBlockPos(origin));
+            nbt.putInt("shapeU", this.shape.length);
+            nbt.putInt("shapeV", this.shape[0].length);
+            nbt.putIntArray("bounds", this.bounds);
+            nbt.putInt("uAxis", this.uAxis.getIndex());
+            nbt.putInt("vAxis", this.vAxis.getIndex());
+            nbt.put("origin", NBTUtil.writeBlockPos(this.origin));
+
+            nbt.putLongArray("transformation", DoubleStream.of(
+                    this.transformation.m00, this.transformation.m01, this.transformation.m02, this.transformation.m03,
+                    this.transformation.m10, this.transformation.m11, this.transformation.m12, this.transformation.m13,
+                    this.transformation.m20, this.transformation.m21, this.transformation.m22, this.transformation.m23,
+                    this.transformation.m30, this.transformation.m31, this.transformation.m32, this.transformation.m33
+            ).mapToLong(Double::doubleToLongBits).toArray());
+
+
             return nbt;
         }
 
@@ -487,21 +552,23 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
         public void deserializeNBT(CompoundNBT nbt) {
             ListNBT positionsNBT = nbt.getList("positions", 10);
             positionsNBT.stream().map(CompoundNBT.class::cast).map(NBTUtil::readBlockPos).forEach(positions::add);
-            direction = Direction.byIndex(nbt.getInt("direction"));
+            this.direction = Direction.byIndex(nbt.getInt("direction"));
             ListNBT shapeNBT = nbt.getList("shape", 9);
             int shapeU = nbt.getInt("shapeU");
             int shapeV = nbt.getInt("shapeV");
-            shape = new boolean[shapeU][shapeV];
+            this.shape = new boolean[shapeU][shapeV];
             for (int u = 0; u < shapeU; u++) {
                 ListNBT list = shapeNBT.getList(u);
                 for (int v = 0; v < shapeV; v++) {
                     shape[u][v] = ((ByteNBT) list.get(v)).getByte() == 1;
                 }
             }
-            bounds = nbt.getIntArray("bounds");
-            uAxis = Direction.byIndex(nbt.getInt("uAxis"));
-            vAxis = Direction.byIndex(nbt.getInt("vAxis"));
-            origin = NBTUtil.readBlockPos(nbt.getCompound("origin"));
+            this.bounds = nbt.getIntArray("bounds");
+            this.uAxis = Direction.byIndex(nbt.getInt("uAxis"));
+            this.vAxis = Direction.byIndex(nbt.getInt("vAxis"));
+            this.origin = NBTUtil.readBlockPos(nbt.getCompound("origin"));
+
+            this.transformation = new Matrix4d(LongStream.of(nbt.getLongArray("transformation")).mapToDouble(Double::longBitsToDouble).toArray());
         }
 
         public List<BlockPos> getPositions() {
@@ -534,6 +601,10 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
 
         public PortalSurface getDestSurface() {
             return destSurface;
+        }
+
+        public Matrix4d getTransformation() {
+            return transformation;
         }
     }
 }
