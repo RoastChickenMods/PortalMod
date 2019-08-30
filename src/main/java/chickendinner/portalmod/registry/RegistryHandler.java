@@ -7,6 +7,7 @@ import chickendinner.portalmod.group.PortalModGroup;
 import chickendinner.portalmod.item.PortalLinkBreakerItem;
 import chickendinner.portalmod.item.PortalLinkerItem;
 import chickendinner.portalmod.reference.Names;
+import chickendinner.portalmod.ter.PortalTileEntityRenderer;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import chickendinner.portalmod.tileentity.SolidFuelGeneratorTile;
 import net.minecraft.block.Block;
@@ -20,6 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
@@ -43,6 +45,8 @@ public final class RegistryHandler {
         addBlock(Names.SOLID_FUEL_GENERATOR, new SolidFuelGeneratorBlock(Block.Properties.from(Blocks.IRON_BLOCK)), SolidFuelGeneratorTile::new);
         addItem(Names.PORTAL_LINKER, new PortalLinkerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
         addItem(Names.PORTAL_LINK_BREAKER, new PortalLinkBreakerItem(DEFAULT_ITEM_PROPERTIES.maxStackSize(1)));
+
+        ClientRegistry.bindTileEntitySpecialRenderer(PortalTileEntity.class, new PortalTileEntityRenderer());
     }
 
     @SubscribeEvent
