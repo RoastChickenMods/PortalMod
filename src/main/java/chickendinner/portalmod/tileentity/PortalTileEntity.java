@@ -4,6 +4,7 @@ import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
 import chickendinner.portalmod.util.PortalLinkResult;
 import chickendinner.portalmod.util.VectorUtils;
+import net.minecraft.client.renderer.model.TexturedQuad;
 import net.minecraft.nbt.ByteNBT;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
