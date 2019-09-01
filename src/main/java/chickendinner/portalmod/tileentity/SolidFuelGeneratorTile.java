@@ -12,19 +12,19 @@ import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.util.IStringSerializable;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-import static chickendinner.portalmod.block.SolidFuelGeneratorBlock.STATE;
-import static chickendinner.portalmod.block.SolidFuelGeneratorBlock.State.BURNING;
-import static chickendinner.portalmod.block.SolidFuelGeneratorBlock.State.IDLE;
+import static chickendinner.portalmod.tileentity.SolidFuelGeneratorTile.State.BURNING;
 
 public class SolidFuelGeneratorTile extends MachineTile implements ITickableTileEntity {
     private static final SolidFuelGeneratorConfig CONFIG = SolidFuelGeneratorConfig.INSTANCE;
     private AdvancedEnergyStorage energyStorage;
     private ItemStackHandler itemStackHandler;
+    private State state;
 
     public SolidFuelGeneratorTile() {
         super(PortalMod.Tiles.SOLID_FUEL_GENERATOR);
@@ -42,6 +42,19 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
                 SolidFuelGeneratorTile.this.markDirty();
             }
         };
+        state = State.IDLE;
+    }
+
+    @Override
+    public CompoundNBT write(CompoundNBT nbt) {
+        nbt.putString("state", state.getName());
+        return super.write(nbt);
+    }
+
+    @Override
+    public void read(CompoundNBT nbt) {
+        state = State.fromString(nbt.getString("state"));
+        super.read(nbt);
     }
 
     @Override
@@ -57,8 +70,7 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
 
     @Override
     public void tick() {
-        BlockState state = this.getBlockState();
-        switch (state.get(STATE)) {
+        switch (state) {
             case BURNING:
                 this.generatePower();
                 this.consumeFuel();
@@ -73,8 +85,12 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
         if (this.hasFuel()) {
             ItemStack fuel = this.itemStackHandler.extractItem(0, 1, false);
             this.setWorkLeft((int) Math.floor(Util.getBurnTime(fuel) * CONFIG.getBurnTimeMultiplier()));
-            this.getWorld().setBlockState(this.getPos(), this.getBlockState().with(STATE, BURNING), 3);
+            setState(BURNING);
         }
+    }
+
+    private void setState(State state) {
+        this.state = state;
     }
 
     private boolean hasFuel() {
@@ -84,11 +100,37 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
     private void consumeFuel() {
         decrementWorkLeft();
         if (this.getWorkLeft() == 0) {
-            this.getWorld().setBlockState(this.getPos(), this.getBlockState().with(STATE, IDLE), 3);
+            setState(State.IDLE);
         }
     }
 
     private void generatePower() {
         this.energyStorage.supply(CONFIG.getFePerBurnTime());
+    }
+
+    public enum State implements IStringSerializable {
+        BURNING("burning"),
+        IDLE("idle");
+
+        private String name;
+
+        State(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        public static State fromString(String name) {
+            for (State value : values()) {
+                if (value.name == name) {
+                    return value;
+                }
+            }
+            // Default
+            return IDLE;
+        }
     }
 }

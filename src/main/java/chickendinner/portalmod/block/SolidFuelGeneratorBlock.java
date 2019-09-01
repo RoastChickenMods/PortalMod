@@ -20,11 +20,8 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import javax.annotation.Nullable;
 
 public class SolidFuelGeneratorBlock extends HorizontalFacingBlock {
-    public static final EnumProperty<State> STATE = EnumProperty.create("state", State.class);
-
     public SolidFuelGeneratorBlock(Properties properties) {
         super(properties);
-        setDefaultState(getDefaultState().with(STATE, State.IDLE));
     }
 
     @Override
@@ -44,11 +41,6 @@ public class SolidFuelGeneratorBlock extends HorizontalFacingBlock {
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        super.fillStateContainer(builder.add(STATE));
-    }
-
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return true;
     }
@@ -57,22 +49,5 @@ public class SolidFuelGeneratorBlock extends HorizontalFacingBlock {
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return new SolidFuelGeneratorTile();
-    }
-
-
-    public enum State implements IStringSerializable {
-        BURNING("burning"),
-        IDLE("idle");
-
-        private String name;
-
-        State(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
     }
 }

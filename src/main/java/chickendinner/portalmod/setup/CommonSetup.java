@@ -1,6 +1,7 @@
 package chickendinner.portalmod.setup;
 
 import chickendinner.portalmod.PortalMod;
+import chickendinner.portalmod.data.blockstate.BlockStateProvider;
 import chickendinner.portalmod.event.CommonEventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -9,6 +10,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +21,13 @@ import org.apache.logging.log4j.Logger;
 public enum CommonSetup {
     INSTANCE;
     private static final Logger LOGGER = LogManager.getLogger();
+
+    @SubscribeEvent
+    public void onDataGather(final GatherDataEvent event) {
+        if (event.includeClient()) {
+            event.getGenerator().addProvider(new BlockStateProvider(event.getGenerator()));
+        }
+    }
 
     /**
      * Most non-specific mod setup will be performed here. Note that this is a parallel dispatched event - you cannot
