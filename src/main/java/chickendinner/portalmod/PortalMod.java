@@ -22,6 +22,9 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
@@ -128,5 +131,9 @@ public class PortalMod {
                     new ModTileType<>(EntanglementCatcherTile::new, Blocks.ENTANGLEMENT_CATCHER).setRegistryName(rl(Names.ENTANGLEMENT_CATCHER))
             );
         }
+    }
+
+    public static class Tags {
+        public static final Tag<Item> PORTAL_FRONT_WHITELIST = new ItemTags.Wrapper(rl("portal_front_whitelist"));
     }
 }

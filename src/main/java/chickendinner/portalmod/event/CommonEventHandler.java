@@ -3,6 +3,7 @@ package chickendinner.portalmod.event;
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -16,11 +17,11 @@ public enum CommonEventHandler {
     INSTANCE;
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onBlockLeftClick(final PlayerInteractEvent.LeftClickBlock event) {
+    public void onBlockLeftClick(final PlayerInteractEvent.LeftClickBlock event) {
         World world = event.getWorld();
         BlockPos pos = event.getPos();
         BlockState state = world.getBlockState(pos);
-        if (state.getBlock() != PortalMod.Blocks.PORTAL) {
+        if (state.getBlock() != PortalMod.Blocks.PORTAL || PortalMod.Tags.PORTAL_FRONT_WHITELIST.contains(event.getItemStack().getItem())) {
             return;
         }
         Direction portalDir = state.get(PortalBlock.FACING);
@@ -35,11 +36,11 @@ public enum CommonEventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onBlockRightClick(final PlayerInteractEvent.RightClickBlock event) {
+    public void onBlockRightClick(final PlayerInteractEvent.RightClickBlock event) {
         World world = event.getWorld();
         BlockPos pos = event.getPos();
         BlockState state = world.getBlockState(pos);
-        if (state.getBlock() != PortalMod.Blocks.PORTAL) {
+        if (state.getBlock() != PortalMod.Blocks.PORTAL || PortalMod.Tags.PORTAL_FRONT_WHITELIST.contains(event.getItemStack().getItem())) {
             return;
         }
         Direction portalDir = state.get(PortalBlock.FACING);
