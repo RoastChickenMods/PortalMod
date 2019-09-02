@@ -1,6 +1,5 @@
 package chickendinner.portalmod.block;
 
-import chickendinner.portalmod.block.base.HorizontalFacingBlock;
 import chickendinner.portalmod.tileentity.EntanglementCatcherTile;
 import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntity;

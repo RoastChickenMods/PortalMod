@@ -2,7 +2,6 @@ package chickendinner.portalmod.tileentity;
 
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.config.SlitCannonConfig;
-import chickendinner.portalmod.tileentity.base.MachineTile;
 import chickendinner.portalmod.tileentity.energy.AdvancedEnergyStorage;
 import chickendinner.portalmod.tileentity.module.EnergyModule;
 import chickendinner.portalmod.tileentity.module.IModule;

@@ -1,4 +1,4 @@
-package chickendinner.portalmod.tileentity.base;
+package chickendinner.portalmod.tileentity;
 
 import chickendinner.portalmod.tileentity.module.IModule;
 import net.minecraft.nbt.CompoundNBT;

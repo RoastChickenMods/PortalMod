@@ -1,16 +1,11 @@
 package chickendinner.portalmod.block;
 
-import chickendinner.portalmod.block.base.HorizontalFacingBlock;
 import chickendinner.portalmod.tileentity.SolidFuelGeneratorTile;
 import chickendinner.portalmod.util.PlayerUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
-import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;

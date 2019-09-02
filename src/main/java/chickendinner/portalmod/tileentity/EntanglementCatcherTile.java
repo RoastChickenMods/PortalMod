@@ -1,7 +1,6 @@
 package chickendinner.portalmod.tileentity;
 
 import chickendinner.portalmod.PortalMod;
-import chickendinner.portalmod.tileentity.base.MachineTile;
 import chickendinner.portalmod.tileentity.module.IModule;
 import chickendinner.portalmod.tileentity.module.ItemModule;
 import com.google.common.collect.ImmutableSet;
