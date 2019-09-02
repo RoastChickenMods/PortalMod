@@ -24,13 +24,13 @@ public interface IModule<T> extends ICapabilityProvider, IStringSerializable, IN
 
     LazyOptional<T> getLazyOptional();
 
+    void setLazyOptional(LazyOptional<T> lazyOptional);
+
     default void checkLazyOptional() {
         if (!getLazyOptional().isPresent()) {
             setLazyOptional(LazyOptional.of(this::getStored));
         }
     }
-
-    void setLazyOptional(LazyOptional<T> lazyOptional);
 
     Set<Direction> getValidDirections();
 

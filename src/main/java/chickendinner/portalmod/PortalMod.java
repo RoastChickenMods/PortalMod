@@ -1,10 +1,6 @@
 package chickendinner.portalmod;
 
-import chickendinner.portalmod.block.EntanglementCatcherBlock;
-import chickendinner.portalmod.block.PortalBlock;
-import chickendinner.portalmod.block.SlitCannonBlock;
-import chickendinner.portalmod.block.SolidFuelGeneratorBlock;
-import chickendinner.portalmod.block.HorizontalFacingBlock;
+import chickendinner.portalmod.block.*;
 import chickendinner.portalmod.config.Config;
 import chickendinner.portalmod.group.PortalModGroup;
 import chickendinner.portalmod.item.EntangledPairItem;

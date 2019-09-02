@@ -9,5 +9,5 @@ public interface IFinishedBlockState {
 
     IBlockStateModelProvider getModelProvider();
 
-    Rotations getRotation(BlockState state) ;
+    Rotations getRotation(BlockState state);
 }

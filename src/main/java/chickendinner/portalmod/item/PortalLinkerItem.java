@@ -2,8 +2,8 @@ package chickendinner.portalmod.item;
 
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
-import chickendinner.portalmod.reference.TranslatedMessage;
 import chickendinner.portalmod.reference.Names;
+import chickendinner.portalmod.reference.TranslatedMessage;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import chickendinner.portalmod.util.PlayerUtil;
 import chickendinner.portalmod.util.PortalLinkResult;
@@ -31,6 +31,25 @@ public class PortalLinkerItem extends Item {
     public PortalLinkerItem(Properties properties) {
         super(properties);
         this.addPropertyOverride(new ResourceLocation(PortalMod.ID, Names.PORTAL_LINKER_ACTIVE), (stack, world, entity) -> hasLink(stack) ? 1F : 0F);
+    }
+
+    private static boolean hasLink(ItemStack stack) {
+        return stack.getOrCreateChildTag(PORTAL_LINKER).contains("pos");
+    }
+
+    private static BlockPos getLink(ItemStack stack) {
+        if (!hasLink(stack)) {
+            return null;
+        }
+        return NBTUtil.readBlockPos(stack.getOrCreateChildTag(PORTAL_LINKER).getCompound("pos"));
+    }
+
+    private static void setLink(ItemStack stack, BlockPos pos) {
+        stack.getOrCreateChildTag(PORTAL_LINKER).put("pos", NBTUtil.writeBlockPos(pos));
+    }
+
+    private static void removeLink(ItemStack stack) {
+        stack.getOrCreateChildTag(PORTAL_LINKER).remove("pos");
     }
 
     @Override
@@ -83,7 +102,6 @@ public class PortalLinkerItem extends Item {
         return ActionResultType.SUCCESS; // Because we did something (remove the link)
     }
 
-
     @Override
     public ITextComponent getDisplayName(ItemStack stack) {
         ITextComponent normal = super.getDisplayName(stack);
@@ -100,24 +118,5 @@ public class PortalLinkerItem extends Item {
             PlayerUtil.tellPlayer(player, TranslatedMessage.PORTAL_LINK_POSITION_CLEARED);
         }
         return super.onItemRightClick(world, player, hand);
-    }
-
-    private static boolean hasLink(ItemStack stack) {
-        return stack.getOrCreateChildTag(PORTAL_LINKER).contains("pos");
-    }
-
-    private static BlockPos getLink(ItemStack stack) {
-        if (!hasLink(stack)) {
-            return null;
-        }
-        return NBTUtil.readBlockPos(stack.getOrCreateChildTag(PORTAL_LINKER).getCompound("pos"));
-    }
-
-    private static void setLink(ItemStack stack, BlockPos pos) {
-        stack.getOrCreateChildTag(PORTAL_LINKER).put("pos", NBTUtil.writeBlockPos(pos));
-    }
-
-    private static void removeLink(ItemStack stack) {
-        stack.getOrCreateChildTag(PORTAL_LINKER).remove("pos");
     }
 }

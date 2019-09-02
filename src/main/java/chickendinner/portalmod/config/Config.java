@@ -8,10 +8,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.Set;
 
 public class Config {
-    private static final Set<IConfigHolder> CONFIG_HOLDERS;
-
     public static final Server SERVER;
     public static final ForgeConfigSpec SERVER_SPEC;
+    private static final Set<IConfigHolder> CONFIG_HOLDERS;
 
     static {
         CONFIG_HOLDERS = ImmutableSet.of(

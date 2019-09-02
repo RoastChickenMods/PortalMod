@@ -1,6 +1,5 @@
 package chickendinner.portalmod.util;
 
-import chickendinner.portalmod.PortalMod;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraftforge.event.ForgeEventFactory;

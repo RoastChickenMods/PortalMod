@@ -5,9 +5,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.math.Rotations;
 
 public class FinishedBlockState implements IFinishedBlockState {
-    private static final DefaultBlockStateModelProvider DEFAULT_MODEL_PROVIDER = new DefaultBlockStateModelProvider();
     public static final Rotations DEFAULT_ROTATIONS = new Rotations(0, 0, 0);
-
+    private static final DefaultBlockStateModelProvider DEFAULT_MODEL_PROVIDER = new DefaultBlockStateModelProvider();
     private final Block block;
     private final IBlockStateModelProvider modelProvider;
 

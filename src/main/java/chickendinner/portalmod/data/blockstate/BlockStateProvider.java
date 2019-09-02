@@ -26,8 +26,8 @@ import java.util.StringJoiner;
 public class BlockStateProvider implements IDataProvider {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = (new GsonBuilder()).disableHtmlEscaping().setPrettyPrinting().create();
-    private List<IFinishedBlockState> blockStates = new ArrayList<>();
     protected final DataGenerator generator;
+    private List<IFinishedBlockState> blockStates = new ArrayList<>();
 
     public BlockStateProvider(DataGenerator generator) {
         this.generator = generator;

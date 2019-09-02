@@ -116,11 +116,6 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
             this.name = name;
         }
 
-        @Override
-        public String getName() {
-            return name;
-        }
-
         public static State fromString(String name) {
             for (State value : values()) {
                 if (value.name == name) {
@@ -129,6 +124,11 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
             }
             // Default
             return IDLE;
+        }
+
+        @Override
+        public String getName() {
+            return name;
         }
     }
 }
