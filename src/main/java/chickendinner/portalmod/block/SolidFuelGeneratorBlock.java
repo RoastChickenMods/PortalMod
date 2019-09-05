@@ -1,16 +1,11 @@
 package chickendinner.portalmod.block;
 
-import chickendinner.portalmod.block.base.HorizontalFacingBlock;
 import chickendinner.portalmod.tileentity.SolidFuelGeneratorTile;
 import chickendinner.portalmod.util.PlayerUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
-import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
@@ -20,11 +15,8 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import javax.annotation.Nullable;
 
 public class SolidFuelGeneratorBlock extends HorizontalFacingBlock {
-    public static final EnumProperty<State> STATE = EnumProperty.create("state", State.class);
-
     public SolidFuelGeneratorBlock(Properties properties) {
         super(properties);
-        setDefaultState(getDefaultState().with(STATE, State.IDLE));
     }
 
     @Override
@@ -44,11 +36,6 @@ public class SolidFuelGeneratorBlock extends HorizontalFacingBlock {
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        super.fillStateContainer(builder.add(STATE));
-    }
-
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return true;
     }
@@ -57,22 +44,5 @@ public class SolidFuelGeneratorBlock extends HorizontalFacingBlock {
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return new SolidFuelGeneratorTile();
-    }
-
-
-    public enum State implements IStringSerializable {
-        BURNING("burning"),
-        IDLE("idle");
-
-        private String name;
-
-        State(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
     }
 }
