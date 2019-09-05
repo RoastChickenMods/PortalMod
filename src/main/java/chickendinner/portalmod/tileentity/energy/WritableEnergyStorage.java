@@ -1,4 +1,4 @@
-package chickendinner.portalmod.energy;
+package chickendinner.portalmod.tileentity.energy;
 
 import net.minecraftforge.energy.EnergyStorage;
 

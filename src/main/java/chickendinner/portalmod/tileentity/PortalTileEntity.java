@@ -1,7 +1,7 @@
 package chickendinner.portalmod.tileentity;
 
+import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
-import chickendinner.portalmod.reference.ModTileTypes;
 import chickendinner.portalmod.util.PortalLinkResult;
 import chickendinner.portalmod.util.VectorUtils;
 import net.minecraft.client.renderer.model.TexturedQuad;
@@ -35,7 +35,7 @@ public class PortalTileEntity extends TileEntity implements ITickableTileEntity 
     private boolean toLink = false;
 
     public PortalTileEntity() {
-        super(ModTileTypes.PORTAL);
+        super(PortalMod.Tiles.PORTAL);
     }
 
     @Override

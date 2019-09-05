@@ -1,7 +1,6 @@
 package chickendinner.portalmod.group;
 
 import chickendinner.portalmod.PortalMod;
-import chickendinner.portalmod.reference.ModBlocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
@@ -14,6 +13,6 @@ public class PortalModGroup extends ItemGroup {
 
     @Override
     public ItemStack createIcon() {
-        return new ItemStack(ModBlocks.PORTAL);
+        return new ItemStack(PortalMod.Blocks.PORTAL);
     }
 }

@@ -2,7 +2,7 @@ package chickendinner.portalmod.item;
 
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
-import chickendinner.portalmod.reference.MessageKey;
+import chickendinner.portalmod.reference.TranslatedMessage;
 import chickendinner.portalmod.reference.Names;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import chickendinner.portalmod.util.PlayerUtil;
@@ -56,23 +56,23 @@ public class PortalLinkerItem extends Item {
         if (linkPosition == null) {
             if (hasLink(heldItem)) {
                 removeLink(heldItem);
-                PlayerUtil.tellPlayer(player, MessageKey.PORTAL_LINK_POSITION_CLEARED);
+                PlayerUtil.tellPlayer(player, TranslatedMessage.PORTAL_LINK_POSITION_CLEARED);
                 return ActionResultType.SUCCESS; // Because we did something (remove the link)
             }
             setLink(heldItem, pos);
-            PlayerUtil.tellPlayer(player, MessageKey.PORTAL_LINK_STORED_POSITION, VectorUtils.convertToCoordinate(pos));
+            PlayerUtil.tellPlayer(player, TranslatedMessage.PORTAL_LINK_STORED_POSITION, VectorUtils.convertToCoordinate(pos));
             return ActionResultType.SUCCESS; // Because we did something (set the link)
         }
 
         TileEntity portalTile = world.getTileEntity(linkPosition);
         if (!(portalTile instanceof PortalTileEntity)) {
-            PlayerUtil.tellPlayer(player, MessageKey.PORTAL_LINK_FAIL_MISSING_DESTINATION);
+            PlayerUtil.tellPlayer(player, TranslatedMessage.PORTAL_LINK_FAIL_MISSING_DESTINATION);
             removeLink(heldItem);
             return ActionResultType.SUCCESS; // Because we did something (remove the link)
         }
 
         if (((PortalTileEntity) portalTile).isLinked()) {
-            PlayerUtil.tellPlayer(player, MessageKey.PORTAL_LINK_FAIL_ALREADY_LINKED);
+            PlayerUtil.tellPlayer(player, TranslatedMessage.PORTAL_LINK_FAIL_ALREADY_LINKED);
             removeLink(heldItem);
             return ActionResultType.SUCCESS; // Because we did something (remove the link)
         }
@@ -97,7 +97,7 @@ public class PortalLinkerItem extends Item {
     public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand) {
         if (player.isSneaking()) {
             removeLink(player.getHeldItem(hand));
-            PlayerUtil.tellPlayer(player, MessageKey.PORTAL_LINK_POSITION_CLEARED);
+            PlayerUtil.tellPlayer(player, TranslatedMessage.PORTAL_LINK_POSITION_CLEARED);
         }
         return super.onItemRightClick(world, player, hand);
     }

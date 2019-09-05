@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "portalmod:portal_linker",
+    "portalmod:portal_link_breaker"
+  ]
+}

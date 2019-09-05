@@ -4,7 +4,7 @@ import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.util.Util;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public enum MessageKey {
+public enum TranslatedMessage {
     /* PORTAL LINK MESSAGES */
     PORTAL_LINK_SUCCESS("portal.link.success"),
     PORTAL_LINK_FAIL_INVALID_STATE("portal.link.invalid_state"),
@@ -19,34 +19,33 @@ public enum MessageKey {
     PORTAL_UNLINK_SUCCESS("portal.unlink.success"),
     PORTAL_UNLINK_FAIL_NOT_LINKED("portal.unlink.not_linked"),
 
-    /* */
-    ;
-    private String messageKey;
+    /* */;
+    private String translationKey;
     private int argCount;
 
-    MessageKey(String key) {
+    TranslatedMessage(String key) {
         this(key, 0);
     }
 
-    MessageKey(String key, int argCount) {
-        this.messageKey = message(key);
+    TranslatedMessage(String key, int argCount) {
+        this.translationKey = message(key);
         this.argCount = argCount;
+    }
+
+    private static String message(String key) {
+        return String.format("message.%s.%s", PortalMod.ID, key);
     }
 
     public TranslationTextComponent getTranslated(Object... args) {
         if (args.length != argCount) {
             Util.printErrorWithStackTrace("Incorrect number of arguments given to message key for translation.");
-            return new TranslationTextComponent(messageKey);
+            return new TranslationTextComponent(translationKey);
         }
-        return new TranslationTextComponent(messageKey, args);
+        return new TranslationTextComponent(translationKey, args);
     }
 
     @Override
     public String toString() {
-        return messageKey;
-    }
-
-    private static String message(String key) {
-        return String.format("message.%s.%s", PortalMod.ID, key);
+        return translationKey;
     }
 }

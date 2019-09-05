@@ -1,7 +1,7 @@
-package chickendinner.portalmod;
+package chickendinner.portalmod.event;
 
+import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.block.PortalBlock;
-import chickendinner.portalmod.reference.ModBlocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
@@ -11,18 +11,16 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = PortalMod.ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public enum EventHandler {
-    ;
+public enum CommonEventHandler {
+    INSTANCE;
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onBlockLeftClick(final PlayerInteractEvent.LeftClickBlock event) {
         World world = event.getWorld();
         BlockPos pos = event.getPos();
         BlockState state = world.getBlockState(pos);
-        if (state.getBlock() != ModBlocks.PORTAL) {
+        if (state.getBlock() != PortalMod.Blocks.PORTAL) {
             return;
         }
         Direction portalDir = state.get(PortalBlock.FACING);
@@ -41,7 +39,7 @@ public enum EventHandler {
         World world = event.getWorld();
         BlockPos pos = event.getPos();
         BlockState state = world.getBlockState(pos);
-        if (state.getBlock() != ModBlocks.PORTAL) {
+        if (state.getBlock() != PortalMod.Blocks.PORTAL) {
             return;
         }
         Direction portalDir = state.get(PortalBlock.FACING);
