@@ -14,13 +14,13 @@ apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
 version = '1.0.0-beta1'
-group = 'roastchicken.portalmod' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = 'chickendinner' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'portalmod'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 minecraft {
-    mappings channel: 'snapshot', version: '20190904-1.14.3'
+    mappings channel: MCP_CHANNEL, version: MCP_MAPPINGS
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -29,68 +29,55 @@ minecraft {
         client {
             workingDirectory project.file('run')
 
-            property 'forge.logging.markers', '' //SCAN,REGISTRIES,REGISTRYDUMP
-            property 'forge.logging.console.level', 'debug'
-
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP' //
+            property 'forge.logging.console.level', 'info'
+            property 'forge.logging.noansi', 'false'
             ideaModule "${project.name}.main"
 
-            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
-//            mods {
-//                examplemod {
-//                    source sourceSets.main
-//                }
-//            }
+//            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
         }
 
         server {
             workingDirectory project.file('run')
 
-            property 'forge.logging.markers', '' //SCAN,REGISTRIES,REGISTRYDUMP
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP' //
             property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.noansi', 'false'
 
             ideaModule "${project.name}.main"
 
-            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
-//            mods {
-//                examplemod {
-//                    source sourceSets.main
-//                }
-//            }
+//            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
         }
 
         data {
             workingDirectory project.file('run')
 
-            property 'forge.logging.markers', '' //SCAN,REGISTRIES,REGISTRYDUMP
+            property 'forge.logging.markers', 'SCAN' //,REGISTRIES,REGISTRYDUMP
             property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.noansi', 'false'
 
             ideaModule "${project.name}.main"
 
             args '--mod', 'portalmod', '--all', '--output', file('src/generated/resources/')
 
-            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
-//            mods {
-//                examplemod {
-//                    source sourceSets.main
-//                }
-//            }
+//            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
         }
     }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.14.4-28.0.91'
+    minecraft "net.minecraftforge:forge:${MC_VERSION}-${FORGE_VERSION}"
 }
 
 jar {
     manifest {
         attributes([
-            "Specification-Title": "examplemod",
-            "Specification-Vendor": "examplemodsareus",
-            "Specification-Version": "1", // We are version 1 of ourselves
+            "Specification-Title": "portalmod",
+            "Specification-Vendor": "roastchickenmods",
+            "Specification-Version": "1",
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"examplemodsareus",
+            "Implementation-Vendor" :"roastchickenmods",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
