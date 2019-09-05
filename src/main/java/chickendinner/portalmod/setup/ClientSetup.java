@@ -2,8 +2,11 @@ package chickendinner.portalmod.setup;
 
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.event.ClientEventHandler;
+import chickendinner.portalmod.ter.PortalTileEntityRenderer;
+import chickendinner.portalmod.tileentity.PortalTileEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,5 +29,6 @@ public enum ClientSetup {
     public void onFMLClientSetup(final FMLClientSetupEvent event) {
         LOGGER.info(DEBUG_LOG, "Loading {} Client Stuff", PortalMod.NAME);
         MinecraftForge.EVENT_BUS.register(ClientEventHandler.INSTANCE);
+        ClientRegistry.bindTileEntitySpecialRenderer(PortalTileEntity.class, new PortalTileEntityRenderer());
     }
 }
