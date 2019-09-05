@@ -1,5 +1,8 @@
 {
+  "group.portalmod": "Portal Mod",
+
   "block.portalmod.portal": "Portal Block",
+
   "item.portalmod.portal_linker": "Portal Linker",
 
   "message.portalmod.portal.link.invalid_state": "Failed to link portals: Invalid state. (report this)",
@@ -10,5 +13,7 @@
   "message.portalmod.portal.link.stored_position": "Set the stored position to %s",
   "message.portalmod.portal.link.success": "Successfully linked portals",
   "message.portalmod.portal.unlink.success": "Successfully unlinked portals",
-  "message.portalmod.portal.unlink.not_linked": "Cannot unlink portals: Portal is not linked."
+  "message.portalmod.portal.unlink.not_linked": "Cannot unlink portals: Portal is not linked.",
+
+  "message.portalmod.cannon.load.success": "Ender eye is now stored and ready to fire"
 }

@@ -57,8 +57,8 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
 
     @Override
     protected void addModules(Set<IModule> moduleList) {
-        moduleList.add(new EnergyModule(energyStorage));
-        moduleList.add(new ItemModule(itemStackHandler));
+        moduleList.add(new EnergyModule(() -> energyStorage));
+        moduleList.add(new ItemModule(() -> itemStackHandler));
     }
 
     @Override

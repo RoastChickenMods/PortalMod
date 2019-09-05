@@ -1,6 +1,5 @@
 package chickendinner.portalmod.tileentity.module;
 
-import com.google.common.collect.ImmutableSet;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.IStringSerializable;
@@ -11,12 +10,10 @@ import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Set;
-
-import static net.minecraft.util.Direction.*;
+import java.util.function.Predicate;
 
 public interface IModule<T> extends ICapabilityProvider, IStringSerializable, INBTSerializable<CompoundNBT> {
-    ImmutableSet<Direction> ALL_DIRECTIONS = ImmutableSet.of(UP, DOWN, NORTH, EAST, SOUTH, WEST);
+    Predicate<Direction> ALL_DIRECTIONS = direction -> true;
 
     Capability<T> getCapaiblityType();
 
@@ -32,12 +29,12 @@ public interface IModule<T> extends ICapabilityProvider, IStringSerializable, IN
         }
     }
 
-    Set<Direction> getValidDirections();
+    Predicate<Direction> isValidDirection();
 
     @Nonnull
     @Override
     default <Z> LazyOptional<Z> getCapability(@Nonnull Capability<Z> cap, @Nullable Direction side) {
-        if (side == null || getValidDirections().contains(side)) {
+        if (side == null || isValidDirection().test(side)) {
             checkLazyOptional();
             return getCapaiblityType().orEmpty(cap, getLazyOptional());
         }

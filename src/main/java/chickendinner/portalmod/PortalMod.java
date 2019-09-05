@@ -42,7 +42,7 @@ import static net.minecraft.block.Blocks.IRON_BLOCK;
 public class PortalMod {
     public static final String ID = "portalmod";
     public static final String NAME = "Portal Mod";
-    public static final Marker DEBUG_LOG = MarkerManager.getMarker(NAME);
+    public static final Marker DEBUG_LOG = MarkerManager.getMarker("PORTALMOD");
 
     /**
      * Registers the registry common and client setup event handlers to the mod event bus.

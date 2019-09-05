@@ -3,7 +3,6 @@ package chickendinner.portalmod.tileentity;
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.tileentity.module.IModule;
 import chickendinner.portalmod.tileentity.module.ItemModule;
-import com.google.common.collect.ImmutableSet;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 
@@ -33,6 +32,6 @@ public class EntanglementCatcherTile extends MachineTile {
 
     @Override
     protected void addModules(Set<IModule> modules) {
-        modules.add(new ItemModule(ImmutableSet.of(getFacing()), itemStorage));
+        modules.add(new ItemModule(dir -> dir == getFacing(), () -> itemStorage));
     }
 }
