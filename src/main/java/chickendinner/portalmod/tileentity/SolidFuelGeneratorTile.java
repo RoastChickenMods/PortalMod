@@ -25,7 +25,7 @@ public class SolidFuelGeneratorTile extends MachineTile implements ITickableTile
     private State state;
 
     public SolidFuelGeneratorTile() {
-        super(PortalMod.Tiles.SOLID_FUEL_GENERATOR);
+        super(PortalMod.Tiles.SOLID_FUEL_GENERATOR.get());
         energyStorage = new AdvancedEnergyStorage(CONFIG.getFeCapacity(), 0, CONFIG.getFeOutputPerTick());
         itemStackHandler = new ItemStackHandler(1) {
             @Override

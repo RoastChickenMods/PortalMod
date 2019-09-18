@@ -3,21 +3,18 @@ package chickendinner.portalmod.block;
 import chickendinner.portalmod.PortalMod;
 import chickendinner.portalmod.tileentity.PortalTileEntity;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.*;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.EnderPearlItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -133,7 +130,7 @@ public class PortalBlock extends Block {
             if (value == front || value.getOpposite() == front) {
                 continue;
             }
-            if (world.getBlockState(pos.offset(value)).getBlock() == PortalMod.Blocks.PORTAL) {
+            if (world.getBlockState(pos.offset(value)).getBlock() == PortalMod.Blocks.PORTAL.get()) {
                 continue;
             }
             shape = VoxelShapes.or(shape, getShapeFromDir(value));

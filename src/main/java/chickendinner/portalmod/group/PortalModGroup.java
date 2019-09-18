@@ -13,6 +13,6 @@ public class PortalModGroup extends ItemGroup {
 
     @Override
     public ItemStack createIcon() {
-        return new ItemStack(PortalMod.Blocks.PORTAL);
+        return new ItemStack(PortalMod.Blocks.PORTAL.get());
     }
 }

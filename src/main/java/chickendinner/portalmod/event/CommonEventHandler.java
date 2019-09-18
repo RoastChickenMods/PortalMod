@@ -15,7 +15,7 @@ public enum CommonEventHandler {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onBlockLeftClick(final PlayerInteractEvent.LeftClickBlock event) {
         BlockState state = event.getWorld().getBlockState(event.getPos());
-        if (state.getBlock() == PortalMod.Blocks.PORTAL
+        if (state.getBlock() == PortalMod.Blocks.PORTAL.get()
                 && !PortalMod.Tags.PORTAL_FRONT_WHITELIST.contains(event.getItemStack().getItem())
                 && event.getFace() == state.get(PortalBlock.FACING)) {
             // TODO: forward action
@@ -30,7 +30,7 @@ public enum CommonEventHandler {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onBlockRightClick(final PlayerInteractEvent.RightClickBlock event) {
         BlockState state = event.getWorld().getBlockState(event.getPos());
-        if (state.getBlock() == PortalMod.Blocks.PORTAL
+        if (state.getBlock() == PortalMod.Blocks.PORTAL.get()
                 && !PortalMod.Tags.PORTAL_FRONT_WHITELIST.contains(event.getItemStack().getItem())
                 && event.getFace() == state.get(PortalBlock.FACING)) {
             // TODO: forward action

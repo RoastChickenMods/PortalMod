@@ -35,7 +35,7 @@ public class SlitCannonTile extends MachineTile {
     };
 
     public SlitCannonTile() {
-        super(PortalMod.Tiles.SLIT_CANNON);
+        super(PortalMod.Tiles.SLIT_CANNON.get());
     }
 
     @Override

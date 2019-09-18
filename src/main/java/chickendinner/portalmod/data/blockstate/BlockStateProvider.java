@@ -34,12 +34,12 @@ public class BlockStateProvider implements IDataProvider {
     }
 
     private void populateBlockStates() {
-        add(PortalMod.Blocks.PORTAL);
-        add(PortalMod.Blocks.SLIT_BLOCK);
-        add(PortalMod.Blocks.ENTANGLEMENT_CATCHER);
-        add(PortalMod.Blocks.SLIT_CANNON);
-        add(PortalMod.Blocks.SOLID_FUEL_GENERATOR);
-        add(PortalMod.Blocks.MACHINE_BASE);
+        add(PortalMod.Blocks.PORTAL.get());
+        add(PortalMod.Blocks.SLIT_BLOCK.get());
+        add(PortalMod.Blocks.ENTANGLEMENT_CATCHER.get());
+        add(PortalMod.Blocks.SLIT_CANNON.get());
+        add(PortalMod.Blocks.SOLID_FUEL_GENERATOR.get());
+        add(PortalMod.Blocks.MACHINE_BASE.get());
     }
 
     private void add(Block block) {
